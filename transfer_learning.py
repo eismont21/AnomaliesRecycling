@@ -2,18 +2,12 @@ from __future__ import print_function, division
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
-import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-import torch.backends.cudnn as cudnn
 import numpy as np
-import torchvision
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 import time
 import os
 import copy
-from pathlib import Path
 from torch.autograd import Variable
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -71,7 +65,7 @@ def create_dataloaders(image_datasets, batch_size=4, shuffle=True, num_workers=4
 
 def train_model(model, criterion, optimizer, scheduler, dataloaders, image_datasets, num_epochs=25, model_name=None):
     trigger_times = 0
-    patience = 10
+    patience = scheduler.step+1
     last_loss = 100
 
     writer = SummaryWriter('runs/' + model_name)
@@ -162,7 +156,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, image_datas
 
                     if trigger_times >= patience:
                         print('Early stopping!\nStart to test process.')
-                        return model
+                        break
 
                 else:
                     print('trigger times: 0')
@@ -224,9 +218,9 @@ def visualize_model(model, dataloaders, class_names, num_images=6):
         model.train(mode=was_training)
 
 
-def print_missclassified(model_ft, image_datasets):
+def print_misclassified(model_ft, image_datasets):
     class_names = image_datasets['train'].classes
-    batch_size = 4
+    model_ft.to(DEVICE)
     model_ft.eval()
     with torch.no_grad():
         for i, (input, label) in enumerate(image_datasets['test'], 0):
