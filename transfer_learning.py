@@ -70,8 +70,14 @@ def create_dataloaders(image_datasets, batch_size=4, shuffle=True, num_workers=4
 
 
 def train_model(model, criterion, optimizer, scheduler, dataloaders, image_datasets, num_epochs=25, model_name=None):
+    trigger_times = 0
+    patience = 10
+    last_loss = 100
+
     writer = SummaryWriter('runs/' + model_name)
+
     model.to(DEVICE)
+
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'test']}
     y_loss = {}  # loss history
     y_loss['train'] = []
@@ -147,6 +153,22 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, image_datas
             if phase == 'test' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
+
+            # Early Stopping
+            if phase == 'test':
+                if epoch_loss > last_loss:
+                    trigger_times += 1
+                    print('Trigger Times:', trigger_times)
+
+                    if trigger_times >= patience:
+                        print('Early stopping!\nStart to test process.')
+                        return model
+
+                else:
+                    print('trigger times: 0')
+                    trigger_times = 0
+
+            last_loss = epoch_loss
 
         print()
 
