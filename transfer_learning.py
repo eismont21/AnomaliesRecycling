@@ -75,10 +75,11 @@ class TransferLearningTrainer:
                                                            num_workers=self.num_workers)
                       for x in ['train', 'test']}
 
-    def train_model(self, model, criterion, optimizer, scheduler, num_epochs=25, model_name=None):
-        trigger_times = 0
-        patience = scheduler.step+1
-        last_loss = 100
+    def train_model(self, model, criterion, optimizer, scheduler, num_epochs=25, model_name=None, early_stop=True):
+        if early_stop:
+            trigger_times = 0
+            patience = scheduler.step_size + 1
+            last_loss = 100
 
         writer = SummaryWriter(TB_DIR + model_name)
 
@@ -161,13 +162,13 @@ class TransferLearningTrainer:
                     best_model_wts = copy.deepcopy(model.state_dict())
 
                 # Early Stopping
-                if phase == 'test':
+                if early_stop and phase == 'test':
                     if epoch_loss > last_loss:
                         trigger_times += 1
                         print('Trigger Times:', trigger_times)
 
                         if trigger_times >= patience:
-                            print('Early stopping!\nStart to test process.')
+                            print('Early stopping!')
                             break
 
                     else:
