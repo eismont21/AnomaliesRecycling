@@ -24,14 +24,14 @@ cudnn.benchmark = True
 
 
 class TransferLearningTrainer:
-    def __init__(self, data_transfroms=None, batch_size=32, shuffle=True, num_workers=4):
+    def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
-        if not data_transfroms:
+        if not data_transforms:
             self.data_transforms = self._create_data_transforms_default()
         else:
-            self.data_transforms = data_transfroms
+            self.data_transforms = data_transforms
         self._create_image_datasets()
         self._create_dataloaders()
 
