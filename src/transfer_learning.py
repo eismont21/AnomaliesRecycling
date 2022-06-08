@@ -11,7 +11,7 @@ import os
 import copy
 from torch.autograd import Variable
 
-from torchray.attribution.grad_cam import grad_cam
+
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
@@ -21,9 +21,14 @@ cudnn.benchmark = True
 
 
 class TransferLearningTrainer:
-    MODELS_DIR = STORE_DIR + "models/"
-    TB_DIR = STORE_DIR + "runs/"
-    DATA_DIR = STORE_DIR + "data/"
+    """
+    Class for training classification model with Transfer Learning
+    """
+
+    MODELS_DIR = STORE_DIR + "models/"  # model save directory
+    TB_DIR = STORE_DIR + "runs/"  # tensorboard save directory
+    DATA_DIR = STORE_DIR + "data/"  # input data directory
+
     def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4):
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -37,20 +42,18 @@ class TransferLearningTrainer:
 
     @staticmethod
     def _create_data_transforms_default(self):
+        """
+        Create default data transformation if no given in constructor
+        :param self:
+        :return:
+        """
 
         # Data augmentation and normalization for training
         # Just normalization for validation
         data_transforms = {
             'train': transforms.Compose([
                 transforms.Resize(256),
-
                 transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomVerticalFlip(p=0.5),
-                transforms.RandomRotation(degrees=(0, 180)),
-                transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.2),
-                transforms.RandomSolarize(threshold=0.5),
-                transforms.RandomAdjustSharpness(sharpness_factor=50, p=0.5),
-
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ]),
@@ -63,12 +66,20 @@ class TransferLearningTrainer:
         return data_transforms
 
     def _create_image_datasets(self):
-        self.image_datasets = {x: datasets.ImageFolder(os.path.join(DATA_DIR, x),
+        """
+        Create image datasets
+        :return:
+        """
+        self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, x),
                                                   self.data_transforms[x])
                       for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_dataloaders(self):
+        """
+        Create data loaders
+        :return:
+        """
         self.dataloaders = {x: torch.utils.data.DataLoader(self.image_datasets[x],
                                                            batch_size=self.batch_size,
                                                            shuffle=self.shuffle,
@@ -76,12 +87,23 @@ class TransferLearningTrainer:
                       for x in ['train', 'test']}
 
     def train_model(self, model, criterion, optimizer, scheduler, num_epochs=25, model_name=None, early_stop=True):
+        """
+        Start model training
+        :param model: model to train
+        :param criterion: criterion
+        :param optimizer: optimizer
+        :param scheduler: scheduler
+        :param num_epochs: number of epochs
+        :param model_name: name of the model to save
+        :param early_stop: if early stopping should be forced
+        :return: trained model with the best accuracy on the test
+        """
         if early_stop:
             trigger_times = 0
             patience = scheduler.step_size + 1
             last_loss = 100
 
-        writer = SummaryWriter(TB_DIR + model_name)
+        writer = SummaryWriter(self.TB_DIR + model_name)
 
         model.to(DEVICE)
 
@@ -185,7 +207,7 @@ class TransferLearningTrainer:
 
         # load best model weights
         model.load_state_dict(best_model_wts)
-        path = MODELS_DIR + model_name + ".pth"
+        path = self.MODELS_DIR + model_name + ".pth"
         torch.save(model.state_dict(), path)
         writer.close()
         return model
@@ -230,6 +252,11 @@ class TransferLearningTrainer:
             model.train(mode=was_training)
 
     def print_misclassified(self, model_ft):
+        """
+        Print a list of images that are misclassified in test
+        :param model_ft: model used for test
+        :return:
+        """
         class_names = self.image_datasets['train'].classes
         model_ft.to(DEVICE)
         model_ft.eval()
@@ -248,6 +275,12 @@ class TransferLearningTrainer:
                     print(f'must be {label}, but predicted {class_names[pred]}')
 
     def print_confusion_matrix(self, model_ft):
+        """
+        Print confusion matrix with accuracy for each class.
+        Takes single image.
+        :param model_ft: model used for test
+        :return:
+        """
         #model_ft.load_state_dict(torch.load("./models/" + model_name))
 
         n_classes = len(self.class_names)
@@ -295,6 +328,12 @@ class TransferLearningTrainer:
         # plt.savefig('output.png')
 
     def print_missclassified_batches(self, model_ft):
+        """
+        Print a list of images that are misclassified in test
+        Takes batch of images and error-prone.
+        :param model_ft: model used for test
+        :return:
+        """
         batch_size = 4
         with torch.no_grad():
             for i, (inputs, labels) in enumerate(self.dataloaders['test'], 0):
@@ -310,61 +349,4 @@ class TransferLearningTrainer:
                     if labels[j] != preds[j]:
                         print(self.dataloaders['test'].dataset.samples[i * batch_size + j][0])
                         print(f'must be {labels[j]}, but predicted {self.class_names[preds[j]]}')
-
-    def print_cam(self, model_ft):
-        import random
-        i = random.randint(0, len(self.image_datasets['test']))
-        print(self.image_datasets['test'].imgs[i][0])
-        model, x, label = model_ft, self.image_datasets['test'][i][0].unsqueeze(0), self.image_datasets['test'][i][1]
-        # Grad-CAM backprop.
-        input = self.image_datasets['test'][i][0]
-        output = model_ft(input.unsqueeze(0))
-        _, pred = torch.max(output, 1)
-        # print("Predicted", pred.detach().numpy()[0])
-        prediction = pred.detach().numpy()[0]
-        saliency = grad_cam(model, x, label, saliency_layer='layer4.1.conv2', resize=True)
-        self.plot_example_custom(x, saliency, 'grad-cam backprop', label, prediction, self.class_names)
-
-    @staticmethod
-    def plot_example_custom(input,
-                            saliency,
-                            method,
-                            category_id,
-                            prediction,
-                            class_names,
-                            show_plot=False,
-                            save_path=None):
-        from torchray.utils import imsc
-        from torchray.benchmark.datasets import IMAGENET_CLASSES
-
-        if isinstance(category_id, int):
-            category_id = [category_id]
-
-        batch_size = len(input)
-
-        plt.clf()
-        for i in range(batch_size):
-            class_i = category_id[i % len(category_id)]
-
-            plt.subplot(batch_size, 2, 1 + 2 * i)
-            imsc(input[i])
-            plt.title('input image', fontsize=8)
-
-            plt.subplot(batch_size, 2, 2 + 2 * i)
-            imsc(saliency[i], interpolation='none')
-            plt.title('{} for label {} (predicted {})'.format(
-                method, class_names[class_i], prediction), fontsize=8)
-
-        # Save figure if path is specified.
-        if save_path:
-            save_dir = os.path.dirname(os.path.abspath(save_path))
-            # Create directory if necessary.
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
-            ext = os.path.splitext(save_path)[1].strip('.')
-            plt.savefig(save_path, format=ext, bbox_inches='tight')
-
-        # Show plot if desired.
-        if show_plot:
-            plt.show()
 
