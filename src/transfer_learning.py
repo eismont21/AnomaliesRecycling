@@ -10,6 +10,7 @@ import time
 import os
 import copy
 from torch.autograd import Variable
+from recycling_dataset import RecyclingDataset
 
 
 
@@ -17,6 +18,7 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 STORE_DIR = "/cvhci/temp/p22g5/"
+HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 cudnn.benchmark = True
 
 
@@ -73,6 +75,12 @@ class TransferLearningTrainer:
         self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, x),
                                                   self.data_transforms[x])
                       for x in ['train', 'test']}
+        self.class_names = self.image_datasets['train'].classes
+
+    def _create_recycling_image_datasets(self):
+        self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", x + ".csv"),
+                                                       self.data_transforms[x])
+                               for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_dataloaders(self):
