@@ -17,13 +17,13 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 STORE_DIR = "/cvhci/temp/p22g5/"
-MODELS_DIR = STORE_DIR + "models/"
-TB_DIR = STORE_DIR + "runs/"
-DATA_DIR = STORE_DIR + "data/"
 cudnn.benchmark = True
 
 
 class TransferLearningTrainer:
+    MODELS_DIR = STORE_DIR + "models/"
+    TB_DIR = STORE_DIR + "runs/"
+    DATA_DIR = STORE_DIR + "data/"
     def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4):
         self.batch_size = batch_size
         self.shuffle = shuffle
