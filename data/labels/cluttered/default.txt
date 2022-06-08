@@ -1,0 +1,1048 @@
+"Anlerndaten (1)".jpg 1
+"Anlerndaten (10)".jpg 1 9
+"Anlerndaten (100)".jpg 1 12
+"Anlerndaten (1000)".jpg 1
+"Anlerndaten (1001)".jpg 1 9
+"Anlerndaten (1002)".jpg 0
+"Anlerndaten (1003)".jpg 0
+"Anlerndaten (1004)".jpg 2 11 7
+"Anlerndaten (1005)".jpg 0
+"Anlerndaten (1006)".jpg 1
+"Anlerndaten (1007)".jpg 1
+"Anlerndaten (1008)".jpg 1
+"Anlerndaten (1009)".jpg 2 11 7
+"Anlerndaten (101)".jpg 2 7 9 10 11
+"Anlerndaten (1010)".jpg 1
+"Anlerndaten (1011)".jpg 2 11 7
+"Anlerndaten (1012)".jpg 0
+"Anlerndaten (1013)".jpg 1 12
+"Anlerndaten (1014)".jpg 1
+"Anlerndaten (1015)".jpg 9 2 11 7
+"Anlerndaten (1016)".jpg 2 7 9 11 12
+"Anlerndaten (1017)".jpg 0
+"Anlerndaten (1018)".jpg 0
+"Anlerndaten (1019)".jpg 0
+"Anlerndaten (102)".jpg 8 2 11
+"Anlerndaten (1020)".jpg 0
+"Anlerndaten (1021)".jpg 1
+"Anlerndaten (1022)".jpg 0
+"Anlerndaten (1023)".jpg 0
+"Anlerndaten (1024)".jpg 9 1
+"Anlerndaten (1025)".jpg 0
+"Anlerndaten (1026)".jpg 1 9
+"Anlerndaten (1027)".jpg 0
+"Anlerndaten (1028)".jpg 1
+"Anlerndaten (1029)".jpg 1
+"Anlerndaten (103)".jpg 9 2 11 7
+"Anlerndaten (1030)".jpg 0
+"Anlerndaten (1031)".jpg 1
+"Anlerndaten (1032)".jpg 1 9
+"Anlerndaten (1033)".jpg 1
+"Anlerndaten (1034)".jpg 1
+"Anlerndaten (1035)".jpg 1
+"Anlerndaten (1036)".jpg 0
+"Anlerndaten (1037)".jpg 9 2 11 7
+"Anlerndaten (1038)".jpg 1
+"Anlerndaten (1039)".jpg 1
+"Anlerndaten (104)".jpg 2 11 12 7
+"Anlerndaten (1040)".jpg 0
+"Anlerndaten (1041)".jpg 8 9 2 11
+"Anlerndaten (1042)".jpg 8 9 10 2
+"Anlerndaten (1043)".jpg 0
+"Anlerndaten (1044)".jpg 0
+"Anlerndaten (1045)".jpg 1
+"Anlerndaten (1046)".jpg 1
+"Anlerndaten (1047)".jpg 2
+"Anlerndaten (1048)".jpg 0
+"Anlerndaten (105)".jpg 1
+"Anlerndaten (106)".jpg 2 11 7
+"Anlerndaten (107)".jpg 1
+"Anlerndaten (108)".jpg 9 2 11 7
+"Anlerndaten (109)".jpg 3 11 7
+"Anlerndaten (11)".jpg 2 11 12 7
+"Anlerndaten (110)".jpg 0
+"Anlerndaten (111)".jpg 1
+"Anlerndaten (112)".jpg 2 7
+"Anlerndaten (113)".jpg 1
+"Anlerndaten (114)".jpg 1
+"Anlerndaten (115)".jpg 2 7 10 11 12
+"Anlerndaten (116)".jpg 9 1
+"Anlerndaten (117)".jpg 1
+"Anlerndaten (118)".jpg 1
+"Anlerndaten (119)".jpg 1
+"Anlerndaten (12)".jpg 1
+"Anlerndaten (120)".jpg 0
+"Anlerndaten (121)".jpg 0
+"Anlerndaten (122)".jpg 9 1
+"Anlerndaten (123)".jpg 1
+"Anlerndaten (124)".jpg 2 7
+"Anlerndaten (125)".jpg 1
+"Anlerndaten (126)".jpg 1
+"Anlerndaten (127)".jpg 1
+"Anlerndaten (128)".jpg 1
+"Anlerndaten (129)".jpg 8 2 11
+"Anlerndaten (13)".jpg 1 12
+"Anlerndaten (130)".jpg 1
+"Anlerndaten (131)".jpg 11 9 3 7
+"Anlerndaten (132)".jpg 1
+"Anlerndaten (133)".jpg 0
+"Anlerndaten (134)".jpg 0
+"Anlerndaten (135)".jpg 1
+"Anlerndaten (136)".jpg 0
+"Anlerndaten (137)".jpg 1
+"Anlerndaten (138)".jpg 8 2
+"Anlerndaten (139)".jpg 2 7
+"Anlerndaten (14)".jpg 1 13
+"Anlerndaten (140)".jpg 2 11 7
+"Anlerndaten (141)".jpg 8 2 11
+"Anlerndaten (142)".jpg 1
+"Anlerndaten (143)".jpg 0
+"Anlerndaten (144)".jpg 9 2 7
+"Anlerndaten (145)".jpg 2 11 7
+"Anlerndaten (146)".jpg 11 3 7
+"Anlerndaten (147)".jpg 1
+"Anlerndaten (148)".jpg 1
+"Anlerndaten (149)".jpg 1
+"Anlerndaten (15)".jpg 2 11 12 7
+"Anlerndaten (150)".jpg 1
+"Anlerndaten (151)".jpg 1
+"Anlerndaten (152)".jpg 2 11 7
+"Anlerndaten (153)".jpg 1
+"Anlerndaten (154)".jpg 1
+"Anlerndaten (155)".jpg 1
+"Anlerndaten (156)".jpg 8 2 11
+"Anlerndaten (157)".jpg 1
+"Anlerndaten (158)".jpg 1
+"Anlerndaten (159)".jpg 1
+"Anlerndaten (16)".jpg 1
+"Anlerndaten (160)".jpg 1
+"Anlerndaten (161)".jpg 2 11 12 7
+"Anlerndaten (162)".jpg 1
+"Anlerndaten (163)".jpg 1 12
+"Anlerndaten (164)".jpg 3 9 11 7
+"Anlerndaten (165)".jpg 2 11 7
+"Anlerndaten (166)".jpg 1
+"Anlerndaten (167)".jpg 1
+"Anlerndaten (168)".jpg 9 2 10 7
+"Anlerndaten (169)".jpg 2 11 12 7
+"Anlerndaten (17)".jpg 0
+"Anlerndaten (170)".jpg 2 11 12 7
+"Anlerndaten (171)".jpg 1
+"Anlerndaten (172)".jpg 1
+"Anlerndaten (173)".jpg 0
+"Anlerndaten (174)".jpg 2 12 7
+"Anlerndaten (175)".jpg 2 11 7
+"Anlerndaten (176)".jpg 1
+"Anlerndaten (177)".jpg 1
+"Anlerndaten (178)".jpg 1
+"Anlerndaten (179)".jpg 1
+"Anlerndaten (18)".jpg 0
+"Anlerndaten (180)".jpg 3 7 9 10 11 12
+"Anlerndaten (181)".jpg 1
+"Anlerndaten (182)".jpg 1
+"Anlerndaten (183)".jpg 3 7 9 10 11
+"Anlerndaten (184)".jpg 1
+"Anlerndaten (185)".jpg 2 11 7
+"Anlerndaten (186)".jpg 8 2 11
+"Anlerndaten (187)".jpg 1
+"Anlerndaten (188)".jpg 1
+"Anlerndaten (189)".jpg 1
+"Anlerndaten (19)".jpg 0
+"Anlerndaten (190)".jpg 1
+"Anlerndaten (191)".jpg 1
+"Anlerndaten (192)".jpg 1
+"Anlerndaten (193)".jpg 1
+"Anlerndaten (194)".jpg 1
+"Anlerndaten (195)".jpg 1
+"Anlerndaten (196)".jpg 1 9
+"Anlerndaten (197)".jpg 1
+"Anlerndaten (198)".jpg 1
+"Anlerndaten (199)".jpg 4 7 9 11 12
+"Anlerndaten (2)".jpg 1
+"Anlerndaten (20)".jpg 1
+"Anlerndaten (200)".jpg 11 4 7
+"Anlerndaten (201)".jpg 1
+"Anlerndaten (202)".jpg 11 3 7
+"Anlerndaten (203)".jpg 0
+"Anlerndaten (204)".jpg 8 2 11
+"Anlerndaten (205)".jpg 1
+"Anlerndaten (206)".jpg 1
+"Anlerndaten (207)".jpg 2 12 7
+"Anlerndaten (208)".jpg 1
+"Anlerndaten (209)".jpg 1
+"Anlerndaten (21)".jpg 9 2 10 7
+"Anlerndaten (210)".jpg 3 11 7
+"Anlerndaten (211)".jpg 1
+"Anlerndaten (212)".jpg 9 2 11 7
+"Anlerndaten (213)".jpg 1
+"Anlerndaten (214)".jpg 8 2 11
+"Anlerndaten (215)".jpg 2 11 7
+"Anlerndaten (216)".jpg 1
+"Anlerndaten (217)".jpg 8 2 11
+"Anlerndaten (218)".jpg 9 10 2 7
+"Anlerndaten (219)".jpg 1
+"Anlerndaten (22)".jpg 1
+"Anlerndaten (220)".jpg 1
+"Anlerndaten (221)".jpg 1
+"Anlerndaten (222)".jpg 1
+"Anlerndaten (223)".jpg 1
+"Anlerndaten (224)".jpg 1
+"Anlerndaten (225)".jpg 1
+"Anlerndaten (226)".jpg 3 11 7
+"Anlerndaten (227)".jpg 1
+"Anlerndaten (228)".jpg 3 11 7
+"Anlerndaten (229)".jpg 3 11 7
+"Anlerndaten (23)".jpg 1 12
+"Anlerndaten (230)".jpg 2 7
+"Anlerndaten (231)".jpg 4 7 9 10 11
+"Anlerndaten (232)".jpg 1
+"Anlerndaten (233)".jpg 3 11 7
+"Anlerndaten (234)".jpg 0
+"Anlerndaten (235)".jpg 11 3 7
+"Anlerndaten (236)".jpg 1
+"Anlerndaten (237)".jpg 1
+"Anlerndaten (238)".jpg 1
+"Anlerndaten (239)".jpg 1
+"Anlerndaten (24)".jpg 1
+"Anlerndaten (240)".jpg 3 7 9 10 11
+"Anlerndaten (241)".jpg 1
+"Anlerndaten (242)".jpg 1
+"Anlerndaten (243)".jpg 0
+"Anlerndaten (244)".jpg 3 9 11 7
+"Anlerndaten (245)".jpg 1
+"Anlerndaten (246)".jpg 2 7
+"Anlerndaten (247)".jpg 1
+"Anlerndaten (248)".jpg 11 3 12 7
+"Anlerndaten (249)".jpg 1
+"Anlerndaten (25)".jpg 1
+"Anlerndaten (250)".jpg 1
+"Anlerndaten (251)".jpg 1
+"Anlerndaten (252)".jpg 1
+"Anlerndaten (253)".jpg 1
+"Anlerndaten (254)".jpg 1
+"Anlerndaten (255)".jpg 2 11 7
+"Anlerndaten (256)".jpg 1
+"Anlerndaten (257)".jpg 8 2 11
+"Anlerndaten (258)".jpg 1
+"Anlerndaten (259)".jpg 1
+"Anlerndaten (26)".jpg 1
+"Anlerndaten (260)".jpg 1
+"Anlerndaten (261)".jpg 1
+"Anlerndaten (262)".jpg 1
+"Anlerndaten (263)".jpg 9 2 11 7
+"Anlerndaten (264)".jpg 8 2
+"Anlerndaten (265)".jpg 9 1
+"Anlerndaten (266)".jpg 9 2 10 7
+"Anlerndaten (267)".jpg 1
+"Anlerndaten (268)".jpg 1
+"Anlerndaten (269)".jpg 1
+"Anlerndaten (27)".jpg 3 11 7
+"Anlerndaten (270)".jpg 1
+"Anlerndaten (271)".jpg 1
+"Anlerndaten (272)".jpg 1
+"Anlerndaten (273)".jpg 2 7
+"Anlerndaten (274)".jpg 2 11 7
+"Anlerndaten (275)".jpg 8 2 11
+"Anlerndaten (276)".jpg 9 2 11 7
+"Anlerndaten (277)".jpg 9 2 11 7
+"Anlerndaten (278)".jpg 1
+"Anlerndaten (279)".jpg 2 11 12 7
+"Anlerndaten (28)".jpg 3 11 7
+"Anlerndaten (280)".jpg 8 2
+"Anlerndaten (281)".jpg 0
+"Anlerndaten (282)".jpg 2 7
+"Anlerndaten (283)".jpg 1
+"Anlerndaten (284)".jpg 1
+"Anlerndaten (285)".jpg 2 11 7
+"Anlerndaten (286)".jpg 1
+"Anlerndaten (287)".jpg 3 11 7
+"Anlerndaten (288)".jpg 1
+"Anlerndaten (289)".jpg 1
+"Anlerndaten (29)".jpg 9 1
+"Anlerndaten (290)".jpg 11 3 6 7
+"Anlerndaten (291)".jpg 0
+"Anlerndaten (292)".jpg 1
+"Anlerndaten (293)".jpg 3 11 7
+"Anlerndaten (294)".jpg 2 10 11 7
+"Anlerndaten (295)".jpg 1
+"Anlerndaten (296)".jpg 2 7
+"Anlerndaten (297)".jpg 3 7 9 10 11
+"Anlerndaten (298)".jpg 2 7 9 10 11
+"Anlerndaten (299)".jpg 2 10 11 7
+"Anlerndaten (3)".jpg 1
+"Anlerndaten (30)".jpg 2 11 7
+"Anlerndaten (300)".jpg 0
+"Anlerndaten (301)".jpg 4 7 9 10 11 12
+"Anlerndaten (302)".jpg 11 8 3
+"Anlerndaten (303)".jpg 0
+"Anlerndaten (304)".jpg 9 1
+"Anlerndaten (305)".jpg 2 11 7
+"Anlerndaten (306)".jpg 2 11 7
+"Anlerndaten (307)".jpg 1
+"Anlerndaten (308)".jpg 1
+"Anlerndaten (309)".jpg 2 7
+"Anlerndaten (31)".jpg 1
+"Anlerndaten (310)".jpg 1
+"Anlerndaten (311)".jpg 9 1
+"Anlerndaten (312)".jpg 9 2 11 7
+"Anlerndaten (313)".jpg 1
+"Anlerndaten (314)".jpg 2 7
+"Anlerndaten (315)".jpg 1
+"Anlerndaten (316)".jpg 1
+"Anlerndaten (317)".jpg 1
+"Anlerndaten (318)".jpg 1 12
+"Anlerndaten (319)".jpg 1
+"Anlerndaten (32)".jpg 1
+"Anlerndaten (320)".jpg 1
+"Anlerndaten (321)".jpg 1
+"Anlerndaten (322)".jpg 2 11 7
+"Anlerndaten (323)".jpg 1
+"Anlerndaten (324)".jpg 1
+"Anlerndaten (325)".jpg 1
+"Anlerndaten (326)".jpg 1 9
+"Anlerndaten (327)".jpg 1
+"Anlerndaten (328)".jpg 1 13
+"Anlerndaten (329)".jpg 9 2 11 7
+"Anlerndaten (33)".jpg 2 11 12 7
+"Anlerndaten (330)".jpg 1
+"Anlerndaten (331)".jpg 2 7
+"Anlerndaten (332)".jpg 2 7
+"Anlerndaten (333)".jpg 2 11 7
+"Anlerndaten (334)".jpg 1
+"Anlerndaten (335)".jpg 9 2 7
+"Anlerndaten (336)".jpg 1 9
+"Anlerndaten (337)".jpg 9 2 11 7
+"Anlerndaten (338)".jpg 1
+"Anlerndaten (339)".jpg 1
+"Anlerndaten (34)".jpg 1 9
+"Anlerndaten (340)".jpg 8 2
+"Anlerndaten (341)".jpg 1
+"Anlerndaten (342)".jpg 1
+"Anlerndaten (343)".jpg 8 2 11
+"Anlerndaten (344)".jpg 9 1
+"Anlerndaten (345)".jpg 1
+"Anlerndaten (346)".jpg 1
+"Anlerndaten (347)".jpg 1
+"Anlerndaten (348)".jpg 1 9
+"Anlerndaten (349)".jpg 1
+"Anlerndaten (35)".jpg 1
+"Anlerndaten (350)".jpg 1 12
+"Anlerndaten (351)".jpg 1
+"Anlerndaten (352)".jpg 4 7 9 10 11
+"Anlerndaten (353)".jpg 1
+"Anlerndaten (354)".jpg 9 1
+"Anlerndaten (355)".jpg 1
+"Anlerndaten (356)".jpg 1
+"Anlerndaten (357)".jpg 1
+"Anlerndaten (358)".jpg 2 11 7
+"Anlerndaten (359)".jpg 1
+"Anlerndaten (36)".jpg 3 11 7
+"Anlerndaten (360)".jpg 1
+"Anlerndaten (361)".jpg 1
+"Anlerndaten (362)".jpg 0
+"Anlerndaten (363)".jpg 1
+"Anlerndaten (364)".jpg 2 11 7
+"Anlerndaten (365)".jpg 2 11 7
+"Anlerndaten (366)".jpg 1
+"Anlerndaten (367)".jpg 1
+"Anlerndaten (368)".jpg 2 11 7
+"Anlerndaten (369)".jpg 1 12
+"Anlerndaten (37)".jpg 0
+"Anlerndaten (370)".jpg 1
+"Anlerndaten (371)".jpg 1
+"Anlerndaten (372)".jpg 1
+"Anlerndaten (373)".jpg 1
+"Anlerndaten (374)".jpg 1
+"Anlerndaten (375)".jpg 1
+"Anlerndaten (376)".jpg 1
+"Anlerndaten (377)".jpg 1
+"Anlerndaten (378)".jpg 8 2 11
+"Anlerndaten (379)".jpg 1
+"Anlerndaten (38)".jpg 11 4 7
+"Anlerndaten (380)".jpg 2 11 7
+"Anlerndaten (381)".jpg 1
+"Anlerndaten (382)".jpg 11 5 7
+"Anlerndaten (383)".jpg 11 5 7
+"Anlerndaten (384)".jpg 9 2 11 7
+"Anlerndaten (385)".jpg 2 11 7
+"Anlerndaten (386)".jpg 1
+"Anlerndaten (387)".jpg 11 3 7
+"Anlerndaten (388)".jpg 1
+"Anlerndaten (389)".jpg 1 9
+"Anlerndaten (39)".jpg 1
+"Anlerndaten (390)".jpg 1
+"Anlerndaten (391)".jpg 3 11 7
+"Anlerndaten (392)".jpg 2 7
+"Anlerndaten (393)".jpg 11 4 7
+"Anlerndaten (394)".jpg 1
+"Anlerndaten (395)".jpg 1
+"Anlerndaten (396)".jpg 1
+"Anlerndaten (397)".jpg 8 2 11
+"Anlerndaten (398)".jpg 9 2 10 7
+"Anlerndaten (399)".jpg 1
+"Anlerndaten (4)".jpg 2 7
+"Anlerndaten (40)".jpg 2 7
+"Anlerndaten (400)".jpg 9 1
+"Anlerndaten (401)".jpg 1
+"Anlerndaten (402)".jpg 11 4 7
+"Anlerndaten (403)".jpg 0
+"Anlerndaten (404)".jpg 1
+"Anlerndaten (405)".jpg 2 11 7
+"Anlerndaten (406)".jpg 2 7
+"Anlerndaten (407)".jpg 1
+"Anlerndaten (408)".jpg 1
+"Anlerndaten (409)".jpg 1
+"Anlerndaten (41)".jpg 1
+"Anlerndaten (410)".jpg 1
+"Anlerndaten (411)".jpg 1
+"Anlerndaten (412)".jpg 1
+"Anlerndaten (413)".jpg 2 11 7
+"Anlerndaten (414)".jpg 1
+"Anlerndaten (415)".jpg 3 7 9 10 11 12
+"Anlerndaten (416)".jpg 0
+"Anlerndaten (417)".jpg 9 2 11 7
+"Anlerndaten (418)".jpg 11 3 12 7
+"Anlerndaten (419)".jpg 1
+"Anlerndaten (42)".jpg 9 1
+"Anlerndaten (420)".jpg 0
+"Anlerndaten (421)".jpg 1
+"Anlerndaten (422)".jpg 1
+"Anlerndaten (423)".jpg 8 2 6
+"Anlerndaten (424)".jpg 0
+"Anlerndaten (425)".jpg 1 9
+"Anlerndaten (426)".jpg 1
+"Anlerndaten (427)".jpg 2 11 7
+"Anlerndaten (428)".jpg 11 12 4 7
+"Anlerndaten (429)".jpg 2 12 7
+"Anlerndaten (43)".jpg 1
+"Anlerndaten (430)".jpg 1
+"Anlerndaten (431)".jpg 0
+"Anlerndaten (432)".jpg 1
+"Anlerndaten (433)".jpg 1
+"Anlerndaten (434)".jpg 1
+"Anlerndaten (435)".jpg 2 7 9 11 12
+"Anlerndaten (436)".jpg 2 11 7
+"Anlerndaten (437)".jpg 1
+"Anlerndaten (438)".jpg 1
+"Anlerndaten (439)".jpg 1
+"Anlerndaten (44)".jpg 1
+"Anlerndaten (440)".jpg 1
+"Anlerndaten (441)".jpg 1
+"Anlerndaten (442)".jpg 9 2 7
+"Anlerndaten (443)".jpg 9 1
+"Anlerndaten (444)".jpg 1
+"Anlerndaten (445)".jpg 1
+"Anlerndaten (446)".jpg 1
+"Anlerndaten (447)".jpg 2 11 7
+"Anlerndaten (448)".jpg 1
+"Anlerndaten (449)".jpg 1
+"Anlerndaten (45)".jpg 0
+"Anlerndaten (450)".jpg 1
+"Anlerndaten (451)".jpg 2 11 7
+"Anlerndaten (452)".jpg 1
+"Anlerndaten (453)".jpg 1
+"Anlerndaten (454)".jpg 1 9
+"Anlerndaten (455)".jpg 2 11 12 7
+"Anlerndaten (456)".jpg 3 7 9 10 11
+"Anlerndaten (457)".jpg 1
+"Anlerndaten (458)".jpg 3 7 9 10 11
+"Anlerndaten (459)".jpg 9 10 2 7
+"Anlerndaten (46)".jpg 1
+"Anlerndaten (460)".jpg 3 11 7
+"Anlerndaten (461)".jpg 0
+"Anlerndaten (462)".jpg 1
+"Anlerndaten (463)".jpg 1
+"Anlerndaten (464)".jpg 11 3 7
+"Anlerndaten (465)".jpg 11 3 12 7
+"Anlerndaten (466)".jpg 1
+"Anlerndaten (467)".jpg 0
+"Anlerndaten (468)".jpg 1
+"Anlerndaten (469)".jpg 1
+"Anlerndaten (47)".jpg 2 11 7
+"Anlerndaten (470)".jpg 1
+"Anlerndaten (471)".jpg 1
+"Anlerndaten (472)".jpg 2 11 7
+"Anlerndaten (473)".jpg 1
+"Anlerndaten (474)".jpg 1
+"Anlerndaten (475)".jpg 1
+"Anlerndaten (476)".jpg 9 2 7
+"Anlerndaten (477)".jpg 1
+"Anlerndaten (478)".jpg 1
+"Anlerndaten (479)".jpg 1
+"Anlerndaten (48)".jpg 1
+"Anlerndaten (480)".jpg 1
+"Anlerndaten (481)".jpg 1
+"Anlerndaten (482)".jpg 1
+"Anlerndaten (483)".jpg 9 2 11 7
+"Anlerndaten (484)".jpg 1
+"Anlerndaten (485)".jpg 1
+"Anlerndaten (486)".jpg 2 11 7
+"Anlerndaten (487)".jpg 3 11 7
+"Anlerndaten (488)".jpg 1 9
+"Anlerndaten (489)".jpg 1
+"Anlerndaten (49)".jpg 0
+"Anlerndaten (490)".jpg 1
+"Anlerndaten (491)".jpg 1
+"Anlerndaten (492)".jpg 1
+"Anlerndaten (493)".jpg 1
+"Anlerndaten (494)".jpg 1
+"Anlerndaten (495)".jpg 1
+"Anlerndaten (496)".jpg 1
+"Anlerndaten (497)".jpg 1
+"Anlerndaten (498)".jpg 1
+"Anlerndaten (499)".jpg 2 11 7
+"Anlerndaten (5)".jpg 2 11 7
+"Anlerndaten (50)".jpg 1
+"Anlerndaten (500)".jpg 5 7 9 10 11 12
+"Anlerndaten (501)".jpg 9 1
+"Anlerndaten (502)".jpg 3 11 12 7
+"Anlerndaten (503)".jpg 3 7 9 10 11
+"Anlerndaten (504)".jpg 3 11 7
+"Anlerndaten (505)".jpg 11 3 7
+"Anlerndaten (506)".jpg 8 2
+"Anlerndaten (507)".jpg 2 11 12 7
+"Anlerndaten (508)".jpg 3 11 7
+"Anlerndaten (509)".jpg 3 11 7
+"Anlerndaten (51)".jpg 1
+"Anlerndaten (510)".jpg 1
+"Anlerndaten (511)".jpg 0
+"Anlerndaten (512)".jpg 2 11 12 7
+"Anlerndaten (513)".jpg 2 11 7
+"Anlerndaten (514)".jpg 1 12
+"Anlerndaten (515)".jpg 0
+"Anlerndaten (516)".jpg 1
+"Anlerndaten (517)".jpg 1 12
+"Anlerndaten (518)".jpg 2 7
+"Anlerndaten (519)".jpg 1
+"Anlerndaten (52)".jpg 1 12
+"Anlerndaten (520)".jpg 8 2 11
+"Anlerndaten (521)".jpg 8 3 11
+"Anlerndaten (522)".jpg 11 3 7
+"Anlerndaten (523)".jpg 2 7
+"Anlerndaten (524)".jpg 0
+"Anlerndaten (525)".jpg 1
+"Anlerndaten (526)".jpg 1
+"Anlerndaten (527)".jpg 1
+"Anlerndaten (528)".jpg 2 11 12 7
+"Anlerndaten (529)".jpg 1
+"Anlerndaten (53)".jpg 1
+"Anlerndaten (530)".jpg 1
+"Anlerndaten (531)".jpg 11 3 7
+"Anlerndaten (532)".jpg 0
+"Anlerndaten (533)".jpg 3 11 7
+"Anlerndaten (534)".jpg 1
+"Anlerndaten (535)".jpg 9 2 11 7
+"Anlerndaten (536)".jpg 1
+"Anlerndaten (537)".jpg 1
+"Anlerndaten (538)".jpg 1
+"Anlerndaten (539)".jpg 1
+"Anlerndaten (54)".jpg 1
+"Anlerndaten (540)".jpg 2 7
+"Anlerndaten (541)".jpg 1
+"Anlerndaten (542)".jpg 3 7 9 10 11
+"Anlerndaten (543)".jpg 2 11 7
+"Anlerndaten (544)".jpg 1
+"Anlerndaten (545)".jpg 1
+"Anlerndaten (546)".jpg 1
+"Anlerndaten (547)".jpg 9 1
+"Anlerndaten (548)".jpg 9 2 11 7
+"Anlerndaten (549)".jpg 0
+"Anlerndaten (55)".jpg 1
+"Anlerndaten (550)".jpg 2 7
+"Anlerndaten (551)".jpg 1
+"Anlerndaten (552)".jpg 2 7
+"Anlerndaten (553)".jpg 0
+"Anlerndaten (554)".jpg 2 11 7
+"Anlerndaten (555)".jpg 1
+"Anlerndaten (556)".jpg 1
+"Anlerndaten (557)".jpg 1
+"Anlerndaten (558)".jpg 9 1
+"Anlerndaten (559)".jpg 1
+"Anlerndaten (56)".jpg 2 7
+"Anlerndaten (560)".jpg 8 2 11
+"Anlerndaten (561)".jpg 2 11 7
+"Anlerndaten (562)".jpg 1
+"Anlerndaten (563)".jpg 1
+"Anlerndaten (564)".jpg 1
+"Anlerndaten (565)".jpg 1
+"Anlerndaten (566)".jpg 2 11 7
+"Anlerndaten (567)".jpg 9 1
+"Anlerndaten (568)".jpg 8 2
+"Anlerndaten (569)".jpg 1 9
+"Anlerndaten (57)".jpg 8 11 3
+"Anlerndaten (570)".jpg 2 11 12 7
+"Anlerndaten (571)".jpg 1 9
+"Anlerndaten (572)".jpg 3 11 7
+"Anlerndaten (573)".jpg 1
+"Anlerndaten (574)".jpg 1
+"Anlerndaten (575)".jpg 2 7
+"Anlerndaten (576)".jpg 1
+"Anlerndaten (577)".jpg 1 13
+"Anlerndaten (578)".jpg 1
+"Anlerndaten (579)".jpg 1
+"Anlerndaten (58)".jpg 1
+"Anlerndaten (580)".jpg 1
+"Anlerndaten (581)".jpg 1
+"Anlerndaten (582)".jpg 2 11 7
+"Anlerndaten (583)".jpg 1
+"Anlerndaten (584)".jpg 1 9
+"Anlerndaten (585)".jpg 1
+"Anlerndaten (586)".jpg 1
+"Anlerndaten (587)".jpg 2 11 7
+"Anlerndaten (588)".jpg 1
+"Anlerndaten (589)".jpg 1
+"Anlerndaten (59)".jpg 1
+"Anlerndaten (590)".jpg 1
+"Anlerndaten (591)".jpg 2 7 9 10 11
+"Anlerndaten (592)".jpg 2 7
+"Anlerndaten (593)".jpg 1
+"Anlerndaten (594)".jpg 1
+"Anlerndaten (595)".jpg 1
+"Anlerndaten (596)".jpg 2 10 11 7
+"Anlerndaten (597)".jpg 2 11 7
+"Anlerndaten (598)".jpg 3 7 9 10 11
+"Anlerndaten (599)".jpg 1
+"Anlerndaten (6)".jpg 1
+"Anlerndaten (60)".jpg 1
+"Anlerndaten (600)".jpg 1
+"Anlerndaten (601)".jpg 1
+"Anlerndaten (602)".jpg 9 2 11 7
+"Anlerndaten (603)".jpg 3 6 7 9 11
+"Anlerndaten (604)".jpg 9 6 1
+"Anlerndaten (605)".jpg 2 11 12 7
+"Anlerndaten (606)".jpg 1
+"Anlerndaten (607)".jpg 1
+"Anlerndaten (608)".jpg 1
+"Anlerndaten (609)".jpg 1
+"Anlerndaten (61)".jpg 3 11 7
+"Anlerndaten (610)".jpg 1
+"Anlerndaten (611)".jpg 8 2
+"Anlerndaten (612)".jpg 9 2 6 7
+"Anlerndaten (613)".jpg 9 2 6 7
+"Anlerndaten (614)".jpg 3 11 12 7
+"Anlerndaten (615)".jpg 8 2 11
+"Anlerndaten (616)".jpg 11 3 7
+"Anlerndaten (617)".jpg 1
+"Anlerndaten (618)".jpg 9 2 11 7
+"Anlerndaten (619)".jpg 1
+"Anlerndaten (62)".jpg 1
+"Anlerndaten (620)".jpg 1
+"Anlerndaten (621)".jpg 1
+"Anlerndaten (622)".jpg 0
+"Anlerndaten (623)".jpg 1
+"Anlerndaten (624)".jpg 1 12
+"Anlerndaten (625)".jpg 0
+"Anlerndaten (626)".jpg 3 7 9 10 11
+"Anlerndaten (627)".jpg 1
+"Anlerndaten (628)".jpg 1
+"Anlerndaten (629)".jpg 2 7
+"Anlerndaten (63)".jpg 1
+"Anlerndaten (630)".jpg 1
+"Anlerndaten (631)".jpg 9 1
+"Anlerndaten (632)".jpg 1
+"Anlerndaten (633)".jpg 1
+"Anlerndaten (634)".jpg 1
+"Anlerndaten (635)".jpg 1
+"Anlerndaten (636)".jpg 1
+"Anlerndaten (637)".jpg 3 11 7
+"Anlerndaten (638)".jpg 9 2 11 7
+"Anlerndaten (639)".jpg 1
+"Anlerndaten (64)".jpg 2 7
+"Anlerndaten (640)".jpg 1
+"Anlerndaten (641)".jpg 1
+"Anlerndaten (642)".jpg 8 2 11
+"Anlerndaten (643)".jpg 1
+"Anlerndaten (644)".jpg 3 7 9 10 11
+"Anlerndaten (645)".jpg 1
+"Anlerndaten (646)".jpg 1
+"Anlerndaten (647)".jpg 1
+"Anlerndaten (648)".jpg 2 11 7
+"Anlerndaten (649)".jpg 1
+"Anlerndaten (65)".jpg 0
+"Anlerndaten (650)".jpg 2 11 7
+"Anlerndaten (651)".jpg 2 11 12 7
+"Anlerndaten (652)".jpg 1 13
+"Anlerndaten (653)".jpg 1
+"Anlerndaten (654)".jpg 1
+"Anlerndaten (655)".jpg 1
+"Anlerndaten (656)".jpg 2 11 12 7
+"Anlerndaten (657)".jpg 1
+"Anlerndaten (658)".jpg 1
+"Anlerndaten (659)".jpg 1 9
+"Anlerndaten (66)".jpg 1
+"Anlerndaten (660)".jpg 1
+"Anlerndaten (661)".jpg 9 2 11 7
+"Anlerndaten (662)".jpg 1
+"Anlerndaten (663)".jpg 8 2 6
+"Anlerndaten (664)".jpg 0
+"Anlerndaten (665)".jpg 1
+"Anlerndaten (666)".jpg 0
+"Anlerndaten (667)".jpg 1 9
+"Anlerndaten (668)".jpg 1
+"Anlerndaten (669)".jpg 2 6 7
+"Anlerndaten (67)".jpg 9 2 11 7
+"Anlerndaten (670)".jpg 1 9
+"Anlerndaten (671)".jpg 2 11 7
+"Anlerndaten (672)".jpg 1 12
+"Anlerndaten (673)".jpg 1
+"Anlerndaten (674)".jpg 1
+"Anlerndaten (675)".jpg 3 11 7
+"Anlerndaten (676)".jpg 0
+"Anlerndaten (677)".jpg 1
+"Anlerndaten (678)".jpg 1
+"Anlerndaten (679)".jpg 1
+"Anlerndaten (68)".jpg 2 11 7
+"Anlerndaten (680)".jpg 1
+"Anlerndaten (681)".jpg 1
+"Anlerndaten (682)".jpg 9 10 2 7
+"Anlerndaten (683)".jpg 2 11 7
+"Anlerndaten (684)".jpg 1
+"Anlerndaten (685)".jpg 1
+"Anlerndaten (686)".jpg 3 9 11 7
+"Anlerndaten (687)".jpg 1
+"Anlerndaten (688)".jpg 1
+"Anlerndaten (689)".jpg 1 12
+"Anlerndaten (69)".jpg 1
+"Anlerndaten (690)".jpg 11 9 3 7
+"Anlerndaten (691)".jpg 1
+"Anlerndaten (692)".jpg 1
+"Anlerndaten (693)".jpg 2 12 7
+"Anlerndaten (694)".jpg 1
+"Anlerndaten (695)".jpg 0
+"Anlerndaten (696)".jpg 1
+"Anlerndaten (697)".jpg 5 7 9 10 11
+"Anlerndaten (698)".jpg 3 11 7
+"Anlerndaten (699)".jpg 8 2
+"Anlerndaten (7)".jpg 11 3 7
+"Anlerndaten (70)".jpg 9 2 11 7
+"Anlerndaten (700)".jpg 4 7 9 10 11
+"Anlerndaten (701)".jpg 9 1
+"Anlerndaten (702)".jpg 1
+"Anlerndaten (703)".jpg 1
+"Anlerndaten (704)".jpg 1
+"Anlerndaten (705)".jpg 4 7 9 10 11
+"Anlerndaten (706)".jpg 1
+"Anlerndaten (707)".jpg 8 2
+"Anlerndaten (708)".jpg 1
+"Anlerndaten (709)".jpg 0
+"Anlerndaten (71)".jpg 1
+"Anlerndaten (710)".jpg 2 7 9 10 11
+"Anlerndaten (711)".jpg 1
+"Anlerndaten (712)".jpg 1
+"Anlerndaten (713)".jpg 1
+"Anlerndaten (714)".jpg 2 11 7
+"Anlerndaten (715)".jpg 1
+"Anlerndaten (716)".jpg 1
+"Anlerndaten (717)".jpg 1 9
+"Anlerndaten (718)".jpg 11 3 7
+"Anlerndaten (719)".jpg 1 12
+"Anlerndaten (72)".jpg 8 2 11
+"Anlerndaten (720)".jpg 9 10 3 7
+"Anlerndaten (721)".jpg 1 12
+"Anlerndaten (722)".jpg 8 2 11
+"Anlerndaten (723)".jpg 1
+"Anlerndaten (724)".jpg 2 11 7
+"Anlerndaten (725)".jpg 1
+"Anlerndaten (726)".jpg 1 9
+"Anlerndaten (727)".jpg 1 9
+"Anlerndaten (728)".jpg 1
+"Anlerndaten (729)".jpg 1 9
+"Anlerndaten (73)".jpg 2 11 7
+"Anlerndaten (730)".jpg 11 4 7
+"Anlerndaten (731)".jpg 1
+"Anlerndaten (732)".jpg 1
+"Anlerndaten (733)".jpg 3 7 9 10 11
+"Anlerndaten (734)".jpg 9 2 11 7
+"Anlerndaten (735)".jpg 1 12
+"Anlerndaten (736)".jpg 1
+"Anlerndaten (737)".jpg 1
+"Anlerndaten (738)".jpg 2 7 9 10 11
+"Anlerndaten (739)".jpg 1
+"Anlerndaten (74)".jpg 1
+"Anlerndaten (740)".jpg 1 12
+"Anlerndaten (741)".jpg 1
+"Anlerndaten (742)".jpg 0
+"Anlerndaten (743)".jpg 2 11 7
+"Anlerndaten (744)".jpg 1
+"Anlerndaten (745)".jpg 1
+"Anlerndaten (746)".jpg 1
+"Anlerndaten (747)".jpg 2 7
+"Anlerndaten (748)".jpg 1
+"Anlerndaten (749)".jpg 1
+"Anlerndaten (75)".jpg 1 9
+"Anlerndaten (750)".jpg 1
+"Anlerndaten (751)".jpg 1
+"Anlerndaten (752)".jpg 11 3 7
+"Anlerndaten (753)".jpg 1
+"Anlerndaten (754)".jpg 1 9
+"Anlerndaten (755)".jpg 1
+"Anlerndaten (756)".jpg 1
+"Anlerndaten (757)".jpg 1
+"Anlerndaten (758)".jpg 1
+"Anlerndaten (759)".jpg 1
+"Anlerndaten (76)".jpg 1
+"Anlerndaten (760)".jpg 0
+"Anlerndaten (761)".jpg 0
+"Anlerndaten (762)".jpg 1
+"Anlerndaten (763)".jpg 11 4 12 7
+"Anlerndaten (764)".jpg 1 12
+"Anlerndaten (765)".jpg 0
+"Anlerndaten (766)".jpg 1
+"Anlerndaten (767)".jpg 1
+"Anlerndaten (768)".jpg 1
+"Anlerndaten (769)".jpg 1
+"Anlerndaten (77)".jpg 1
+"Anlerndaten (770)".jpg 9 1
+"Anlerndaten (771)".jpg 1
+"Anlerndaten (772)".jpg 0
+"Anlerndaten (773)".jpg 9 2 11 7
+"Anlerndaten (774)".jpg 1
+"Anlerndaten (775)".jpg 9 1
+"Anlerndaten (776)".jpg 1 12
+"Anlerndaten (777)".jpg 1 12
+"Anlerndaten (778)".jpg 1 9
+"Anlerndaten (779)".jpg 5 7 9 10 11
+"Anlerndaten (78)".jpg 9 2 11 7
+"Anlerndaten (780)".jpg 9 2 11 7
+"Anlerndaten (781)".jpg 2 7
+"Anlerndaten (782)".jpg 1
+"Anlerndaten (783)".jpg 1
+"Anlerndaten (784)".jpg 11 3 7
+"Anlerndaten (785)".jpg 1
+"Anlerndaten (786)".jpg 1
+"Anlerndaten (787)".jpg 2 11 7
+"Anlerndaten (788)".jpg 2 11 7
+"Anlerndaten (789)".jpg 1
+"Anlerndaten (79)".jpg 1
+"Anlerndaten (790)".jpg 1
+"Anlerndaten (791)".jpg 1 9
+"Anlerndaten (792)".jpg 1 9
+"Anlerndaten (793)".jpg 2 11 7
+"Anlerndaten (794)".jpg 0
+"Anlerndaten (795)".jpg 2 11 12 7
+"Anlerndaten (796)".jpg 1 12
+"Anlerndaten (797)".jpg 0
+"Anlerndaten (798)".jpg 0
+"Anlerndaten (799)".jpg 9 1
+"Anlerndaten (8)".jpg 2 7 9 10 11
+"Anlerndaten (80)".jpg 1
+"Anlerndaten (800)".jpg 2 7
+"Anlerndaten (801)".jpg 1 9
+"Anlerndaten (802)".jpg 1
+"Anlerndaten (803)".jpg 0
+"Anlerndaten (804)".jpg 1 9
+"Anlerndaten (805)".jpg 1
+"Anlerndaten (806)".jpg 1
+"Anlerndaten (807)".jpg 1
+"Anlerndaten (808)".jpg 1
+"Anlerndaten (809)".jpg 3 7 9 10 11
+"Anlerndaten (81)".jpg 1
+"Anlerndaten (810)".jpg 1
+"Anlerndaten (811)".jpg 1
+"Anlerndaten (812)".jpg 1 9
+"Anlerndaten (813)".jpg 1
+"Anlerndaten (814)".jpg 1
+"Anlerndaten (815)".jpg 1
+"Anlerndaten (816)".jpg 1
+"Anlerndaten (817)".jpg 1
+"Anlerndaten (818)".jpg 1
+"Anlerndaten (819)".jpg 1 9
+"Anlerndaten (82)".jpg 1
+"Anlerndaten (820)".jpg 0
+"Anlerndaten (821)".jpg 9 2 10 7
+"Anlerndaten (822)".jpg 2 11 7
+"Anlerndaten (823)".jpg 1
+"Anlerndaten (824)".jpg 1
+"Anlerndaten (825)".jpg 9 2 11 7
+"Anlerndaten (826)".jpg 1
+"Anlerndaten (827)".jpg 2 11 7
+"Anlerndaten (828)".jpg 1
+"Anlerndaten (829)".jpg 9 1
+"Anlerndaten (83)".jpg 1
+"Anlerndaten (830)".jpg 2 6 7
+"Anlerndaten (831)".jpg 1
+"Anlerndaten (832)".jpg 1
+"Anlerndaten (833)".jpg 1
+"Anlerndaten (834)".jpg 9 2 11 7
+"Anlerndaten (835)".jpg 1 12
+"Anlerndaten (836)".jpg 1
+"Anlerndaten (837)".jpg 1
+"Anlerndaten (838)".jpg 9 1
+"Anlerndaten (839)".jpg 0
+"Anlerndaten (84)".jpg 1
+"Anlerndaten (840)".jpg 1
+"Anlerndaten (841)".jpg 0
+"Anlerndaten (842)".jpg 1
+"Anlerndaten (843)".jpg 3 7 9 10 11
+"Anlerndaten (844)".jpg 0
+"Anlerndaten (845)".jpg 9 2 11 7
+"Anlerndaten (846)".jpg 9 1
+"Anlerndaten (847)".jpg 1 12
+"Anlerndaten (848)".jpg 0
+"Anlerndaten (849)".jpg 1
+"Anlerndaten (85)".jpg 11 3 12 7
+"Anlerndaten (850)".jpg 2 11 7
+"Anlerndaten (851)".jpg 0
+"Anlerndaten (852)".jpg 9 2 11 7
+"Anlerndaten (853)".jpg 1
+"Anlerndaten (854)".jpg 0
+"Anlerndaten (855)".jpg 1
+"Anlerndaten (856)".jpg 0
+"Anlerndaten (857)".jpg 3 7 9 10 11
+"Anlerndaten (858)".jpg 2 11 7
+"Anlerndaten (859)".jpg 1
+"Anlerndaten (86)".jpg 9 2 10 7
+"Anlerndaten (860)".jpg 1
+"Anlerndaten (861)".jpg 2 11 12 7
+"Anlerndaten (862)".jpg 1
+"Anlerndaten (863)".jpg 1
+"Anlerndaten (864)".jpg 0
+"Anlerndaten (865)".jpg 11 3 12 7
+"Anlerndaten (866)".jpg 2 7
+"Anlerndaten (867)".jpg 2 7 9 10 11
+"Anlerndaten (868)".jpg 1 12
+"Anlerndaten (869)".jpg 11 3 7
+"Anlerndaten (87)".jpg 0
+"Anlerndaten (870)".jpg 3 7 9 11 12
+"Anlerndaten (871)".jpg 1
+"Anlerndaten (872)".jpg 1
+"Anlerndaten (873)".jpg 1
+"Anlerndaten (874)".jpg 0
+"Anlerndaten (875)".jpg 2 11 12 7
+"Anlerndaten (876)".jpg 0
+"Anlerndaten (877)".jpg 1
+"Anlerndaten (878)".jpg 11 10 3 7
+"Anlerndaten (879)".jpg 1 13
+"Anlerndaten (88)".jpg 8 2 11
+"Anlerndaten (880)".jpg 0
+"Anlerndaten (881)".jpg 0
+"Anlerndaten (882)".jpg 11 8 10 2
+"Anlerndaten (883)".jpg 1
+"Anlerndaten (884)".jpg 1
+"Anlerndaten (885)".jpg 0
+"Anlerndaten (886)".jpg 9 2 11 7
+"Anlerndaten (887)".jpg 9 1
+"Anlerndaten (888)".jpg 1
+"Anlerndaten (889)".jpg 9 1
+"Anlerndaten (89)".jpg 1
+"Anlerndaten (890)".jpg 0
+"Anlerndaten (891)".jpg 0
+"Anlerndaten (892)".jpg 1
+"Anlerndaten (893)".jpg 1
+"Anlerndaten (894)".jpg 1
+"Anlerndaten (895)".jpg 2 7
+"Anlerndaten (896)".jpg 1
+"Anlerndaten (897)".jpg 1
+"Anlerndaten (898)".jpg 1
+"Anlerndaten (899)".jpg 11 3 7
+"Anlerndaten (9)".jpg 1
+"Anlerndaten (90)".jpg 1
+"Anlerndaten (900)".jpg 1
+"Anlerndaten (901)".jpg 8 2 11
+"Anlerndaten (902)".jpg 1
+"Anlerndaten (903)".jpg 9 2 10 7
+"Anlerndaten (904)".jpg 1
+"Anlerndaten (905)".jpg 1
+"Anlerndaten (906)".jpg 0
+"Anlerndaten (907)".jpg 0
+"Anlerndaten (908)".jpg 0
+"Anlerndaten (909)".jpg 0
+"Anlerndaten (91)".jpg 1
+"Anlerndaten (910)".jpg 0
+"Anlerndaten (911)".jpg 9 2 10 7
+"Anlerndaten (912)".jpg 2 7
+"Anlerndaten (913)".jpg 1
+"Anlerndaten (914)".jpg 2 11 7
+"Anlerndaten (915)".jpg 2 7 9 11 12
+"Anlerndaten (916)".jpg 0
+"Anlerndaten (917)".jpg 9 10 2 7
+"Anlerndaten (918)".jpg 1
+"Anlerndaten (919)".jpg 9 2 10 7
+"Anlerndaten (92)".jpg 1
+"Anlerndaten (920)".jpg 1
+"Anlerndaten (921)".jpg 1
+"Anlerndaten (922)".jpg 9 2 11 7
+"Anlerndaten (923)".jpg 1 12
+"Anlerndaten (924)".jpg 0
+"Anlerndaten (925)".jpg 2 11 7
+"Anlerndaten (926)".jpg 1
+"Anlerndaten (927)".jpg 0
+"Anlerndaten (928)".jpg 3 11 7
+"Anlerndaten (929)".jpg 1
+"Anlerndaten (93)".jpg 1
+"Anlerndaten (930)".jpg 1
+"Anlerndaten (931)".jpg 1 9
+"Anlerndaten (932)".jpg 2 11 12 7
+"Anlerndaten (933)".jpg 2 7 9 10 11
+"Anlerndaten (934)".jpg 1
+"Anlerndaten (935)".jpg 1
+"Anlerndaten (936)".jpg 0
+"Anlerndaten (937)".jpg 0
+"Anlerndaten (938)".jpg 3 7 9 10 11
+"Anlerndaten (939)".jpg 1
+"Anlerndaten (94)".jpg 1
+"Anlerndaten (940)".jpg 0
+"Anlerndaten (941)".jpg 1
+"Anlerndaten (942)".jpg 8 2
+"Anlerndaten (943)".jpg 0
+"Anlerndaten (944)".jpg 3 7 9 11 12
+"Anlerndaten (945)".jpg 9 10 2 7
+"Anlerndaten (946)".jpg 9 10 2 7
+"Anlerndaten (947)".jpg 1 9
+"Anlerndaten (948)".jpg 0
+"Anlerndaten (949)".jpg 1
+"Anlerndaten (95)".jpg 1
+"Anlerndaten (950)".jpg 1 13
+"Anlerndaten (951)".jpg 0
+"Anlerndaten (952)".jpg 1
+"Anlerndaten (953)".jpg 1 9
+"Anlerndaten (954)".jpg 1
+"Anlerndaten (955)".jpg 2 7
+"Anlerndaten (956)".jpg 0
+"Anlerndaten (957)".jpg 0
+"Anlerndaten (958)".jpg 1
+"Anlerndaten (959)".jpg 9 1
+"Anlerndaten (96)".jpg 1
+"Anlerndaten (960)".jpg 3 7 9 10 11
+"Anlerndaten (961)".jpg 0
+"Anlerndaten (962)".jpg 4 7 10 11 12
+"Anlerndaten (963)".jpg 1
+"Anlerndaten (964)".jpg 1
+"Anlerndaten (965)".jpg 1
+"Anlerndaten (966)".jpg 1
+"Anlerndaten (967)".jpg 1
+"Anlerndaten (968)".jpg 1
+"Anlerndaten (969)".jpg 1 12
+"Anlerndaten (97)".jpg 0
+"Anlerndaten (970)".jpg 1
+"Anlerndaten (971)".jpg 0
+"Anlerndaten (972)".jpg 1
+"Anlerndaten (973)".jpg 3 11 7
+"Anlerndaten (974)".jpg 1
+"Anlerndaten (975)".jpg 1
+"Anlerndaten (976)".jpg 9 2 11 7
+"Anlerndaten (977)".jpg 9 2 11 7
+"Anlerndaten (978)".jpg 2 7 9 10 11
+"Anlerndaten (979)".jpg 8 2 11
+"Anlerndaten (98)".jpg 0
+"Anlerndaten (980)".jpg 9 1
+"Anlerndaten (981)".jpg 1
+"Anlerndaten (982)".jpg 0
+"Anlerndaten (983)".jpg 11 4 7
+"Anlerndaten (984)".jpg 2 7 9 10 11
+"Anlerndaten (985)".jpg 9 2 11 7
+"Anlerndaten (986)".jpg 0
+"Anlerndaten (987)".jpg 2 12 7
+"Anlerndaten (988)".jpg 3 7 9 10 11 12
+"Anlerndaten (989)".jpg 1 9
+"Anlerndaten (99)".jpg 1
+"Anlerndaten (990)".jpg 0
+"Anlerndaten (991)".jpg 0
+"Anlerndaten (992)".jpg 1
+"Anlerndaten (993)".jpg 1
+"Anlerndaten (994)".jpg 0
+"Anlerndaten (995)".jpg 3 7 10 11 12
+"Anlerndaten (996)".jpg 1 9
+"Anlerndaten (997)".jpg 9 10 2 7
+"Anlerndaten (998)".jpg 0
+"Anlerndaten (999)".jpg 1
