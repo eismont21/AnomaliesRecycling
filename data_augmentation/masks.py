@@ -5,18 +5,19 @@ from scipy.spatial import distance
 import numpy as np
 
 # Add path to image data (should contain cluttered and presorted folders)"
-path_polysecure = ""
+path_polysecure = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/POLYSECURE"
 
 # Add path to target directory where results can be saved
-target_path = ""
+target_path = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
 
 # Pick name for result csv file
 masks_csv_name = 'masks.csv'
 
 # Dataframe lists all images which contain one object and (hopefully) no black-transparent objects
-one_lid = pd.read_csv('one_lid.csv')
+one_lid = pd.read_csv('data/one_lid.csv')
 
 # Add 'contours', 'objects' or 'binary_masks' to tasks
+# For copy_and_past.py 'objects', 'binary_masks' and 'save_csv' is needed
 # 'contours': Generating and saving images with contours
 # 'objects': Generating and saving images with object and black background
 # 'binary_masks': Generating and saving binary mask
@@ -41,6 +42,7 @@ for index, row in one_lid.iterrows():
     img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     # Add gaussian blurr to get better mask later
     img_gauss = cv2.GaussianBlur(img_gray, ksize=(5, 5), sigmaX=cv2.BORDER_DEFAULT)
+
 
     # computes individual threshold for each image
     threshold = 20
@@ -102,19 +104,22 @@ for index, row in one_lid.iterrows():
     # Generating and saving binary mask
     if 'binary_masks' in tasks:
         image = cv2.imread(image_path)
-        # Generating image with object with black background
         blank_mask = np.zeros(image.shape, dtype=np.uint8)
         cv2.fillPoly(blank_mask, [cnt], (255, 255, 255))
         blank_mask = cv2.cvtColor(blank_mask, cv2.COLOR_BGR2GRAY)
-        object_image = cv2.bitwise_and(image, image, mask=blank_mask)
-        # Generating binary_mask
-        ret, mask = cv2.threshold(object_image, 10, 255, cv2.THRESH_BINARY_INV)
+        im_floodfill = blank_mask.copy()
+        h, w = blank_mask.shape[:2]
+        mask = np.zeros((h + 2, w + 2), np.uint8)
+        cv2.floodFill(im_floodfill, mask, (0, 0), 255)
+        im_floodfill_inv = cv2.bitwise_not(im_floodfill)
+        im_out = blank_mask | im_floodfill_inv
+        im_out = cv2.bitwise_not(im_out)
         binary_masks_path = os.path.join(target_path, 'binary_masks')
         if not os.path.isdir(binary_masks_path):
             os.mkdir(binary_masks_path)
         binary_mask_name = "binary_mask_" + str(index) + '.jpg'
         save_path = os.path.join(binary_masks_path, binary_mask_name)
-        cv2.imwrite(save_path, mask)
+        cv2.imwrite(save_path, im_out)
         binary_mask_names.append(binary_mask_name)
 
 
@@ -137,5 +142,4 @@ if 'save_csv' in tasks:
         binary_df.to_csv(binary_csv_path)
 
 
-cv2.waitKey()
-cv2.destroyAllWindows()
+
