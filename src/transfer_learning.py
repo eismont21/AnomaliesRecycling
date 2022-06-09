@@ -13,7 +13,6 @@ from torch.autograd import Variable
 from src.recycling_dataset import RecyclingDataset
 
 
-
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -72,15 +71,14 @@ class TransferLearningTrainer:
         :return:
         """
         self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, x),
-                                    
-                                                  self.data_transforms[x])
-                      for x in ['train', 'test']}
+                                                       self.data_transforms[x])
+                               for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_recycling_image_datasets(self):
         self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", x + ".csv"),
-                                                       os.path.join(STORE_DIR, "data"),
-                                                       self.data_transforms[x])
+                                                   os.path.join(STORE_DIR, "data"),
+                                                   self.data_transforms[x])
                                for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
@@ -93,7 +91,7 @@ class TransferLearningTrainer:
                                                            batch_size=self.batch_size,
                                                            shuffle=self.shuffle,
                                                            num_workers=self.num_workers)
-                      for x in ['train', 'test']}
+                            for x in ['train', 'test']}
 
     def train_model(self, model, criterion, optimizer, scheduler, num_epochs=25, model_name=None, early_stop=True):
         """
@@ -351,7 +349,6 @@ class TransferLearningTrainer:
         batch_size = 4
         with torch.no_grad():
             for i, sample in enumerate(self.dataloaders['test'], 0):
-                # print(labels)
                 inputs, labels = sample['image'], sample['label']
                 inputs = inputs.to(DEVICE)
                 labels = labels.to(DEVICE)
@@ -360,7 +357,6 @@ class TransferLearningTrainer:
                 _, preds = torch.max(outputs, 1)
 
                 for j in range(inputs.size()[0]):
-                    # print(j)
                     if labels[j] != preds[j]:
                         print(self.dataloaders['test'].dataset.samples[i * batch_size + j][0])
                         print(f'must be {labels[j]}, but predicted {self.class_names[preds[j]]}')

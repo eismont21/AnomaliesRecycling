@@ -3,7 +3,6 @@ import torch
 from torchray.attribution.grad_cam import grad_cam
 import matplotlib.pyplot as plt
 import os
-import numpy as np
 
 
 class CAM:
@@ -34,7 +33,6 @@ class CAM:
         input = self.trainer.image_datasets['test'][i]['image']
         output = model_ft(input.unsqueeze(0))
         _, pred = torch.max(output, 1)
-        # print("Predicted", pred.detach().numpy()[0])
         prediction = pred.detach().numpy()[0]
         saliency = grad_cam(model, x, label, saliency_layer='layer4.1.conv2', resize=True)
         self.plot_example_custom(x, saliency, 'grad-cam backprop', label, prediction, self.trainer.class_names)
