@@ -39,7 +39,7 @@ class TransferLearningTrainer:
             self.data_transforms = self._create_data_transforms_default()
         else:
             self.data_transforms = data_transforms
-        self._create_image_datasets()
+        self._create_recycling_image_datasets()
         self._create_dataloaders()
 
     @staticmethod
