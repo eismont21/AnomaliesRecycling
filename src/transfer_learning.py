@@ -10,7 +10,7 @@ import time
 import os
 import copy
 from torch.autograd import Variable
-from recycling_dataset import RecyclingDataset
+from src.recycling_dataset import RecyclingDataset
 
 
 
@@ -63,8 +63,7 @@ class TransferLearningTrainer:
                 transforms.Resize(256),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ]),
-        }
+            ])}
         return data_transforms
 
     def _create_image_datasets(self):
@@ -73,12 +72,14 @@ class TransferLearningTrainer:
         :return:
         """
         self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, x),
+                                    
                                                   self.data_transforms[x])
                       for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_recycling_image_datasets(self):
         self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", x + ".csv"),
+                                                       os.path.join(STORE_DIR, "data"),
                                                        self.data_transforms[x])
                                for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
@@ -144,7 +145,9 @@ class TransferLearningTrainer:
                 running_corrects = 0
 
                 # Iterate over data.
-                for inputs, labels in self.dataloaders[phase]:
+                for sample in self.dataloaders[phase]:
+                    inputs = sample['image']
+                    labels = sample['label']
                     # inputs = inputs.to(device)
                     # labels = labels.to(device)
                     inputs = Variable(inputs.cuda())
@@ -240,7 +243,8 @@ class TransferLearningTrainer:
         fig = plt.figure()
 
         with torch.no_grad():
-            for i, (inputs, labels) in enumerate(self.dataloaders['test'], 0):
+            for i, sample in enumerate(self.dataloaders['test'], 0):
+                inputs, labels = sample['image'], sample['label']
                 inputs = inputs.to(DEVICE)
                 labels = labels.to(DEVICE)
 
@@ -269,7 +273,8 @@ class TransferLearningTrainer:
         model_ft.to(DEVICE)
         model_ft.eval()
         with torch.no_grad():
-            for i, (input, label) in enumerate(self.image_datasets['test'], 0):
+            for i, sample in enumerate(self.image_datasets['test'], 0):
+                input, label = sample['image'], sample['label']
                 # print(input)
                 input = input.to(DEVICE)
                 # label = label.to(device)
@@ -278,7 +283,7 @@ class TransferLearningTrainer:
                 _, pred = torch.max(output, 1)
 
                 if label != pred:
-                    print(self.image_datasets['test'].imgs[i])
+                    print(self.image_datasets['test'][i]['img_path'])
                     # print(dataloaders['test'].dataset.samples[i*batch_size+j][0])
                     print(f'must be {label}, but predicted {class_names[pred]}')
 
@@ -301,7 +306,8 @@ class TransferLearningTrainer:
         y_true = []
 
         # iterate over test data
-        for inputs, labels in self.dataloaders['test']:
+        for sample in self.dataloaders['test']:
+            inputs, labels = sample['image'], sample['label']
             inputs, labels = inputs.to(DEVICE), labels.to(DEVICE)
             output = model_ft(inputs)  # Feed Network
 
@@ -344,8 +350,9 @@ class TransferLearningTrainer:
         """
         batch_size = 4
         with torch.no_grad():
-            for i, (inputs, labels) in enumerate(self.dataloaders['test'], 0):
+            for i, sample in enumerate(self.dataloaders['test'], 0):
                 # print(labels)
+                inputs, labels = sample['image'], sample['label']
                 inputs = inputs.to(DEVICE)
                 labels = labels.to(DEVICE)
 

@@ -1,7 +1,9 @@
 import torch
+
 from torchray.attribution.grad_cam import grad_cam
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
 
 class CAM:
@@ -24,12 +26,12 @@ class CAM:
         """
         import random
         i = random.randint(0, len(self.trainer.image_datasets['test']))
-        print(self.trainer.image_datasets['test'].imgs[i][0])
+        print(self.trainer.image_datasets['test'][i]['img_path'])
         model = model_ft
-        x = self.trainer.image_datasets['test'][i][0].unsqueeze(0)
-        label = self.trainer.image_datasets['test'][i][1]
+        x = self.trainer.image_datasets['test'][i]['image'].unsqueeze(0)
+        label = self.trainer.image_datasets['test'][i]['label']
         # Grad-CAM backprop.
-        input = self.trainer.image_datasets['test'][i][0]
+        input = self.trainer.image_datasets['test'][i]['image']
         output = model_ft(input.unsqueeze(0))
         _, pred = torch.max(output, 1)
         # print("Predicted", pred.detach().numpy()[0])
@@ -60,10 +62,9 @@ class CAM:
         :return: shows heatmap
         """
         from torchray.utils import imsc
-
+        category_id = category_id.item()
         if isinstance(category_id, int):
             category_id = [category_id]
-
         batch_size = len(input)
 
         plt.clf()
