@@ -15,14 +15,14 @@ import numpy as np
 ########################################################################################################################
 
 # Add path to image data (should contain cluttered and presorted folders)"
-path_polysecure = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/POLYSECURE"
+path_polysecure = ""
 
 # Add path to masks directory where masks (generated with masks.py) are saved.
 # Should contain binary masks & objects directory and binarymasks.csv & objectmasks.csv
-masks_path = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
+masks_path = ""
 
 # Add path to directory where results can be saved
-target_path = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste/results"
+target_path = ""
 
 object_csv_path = os.path.join(masks_path, 'objectmasks.csv')
 object_masks = pd.read_csv(object_csv_path)
