@@ -88,6 +88,9 @@ class TransferLearningTrainer:
         :return:
         """
         self.dataloaders = {x: torch.utils.data.DataLoader(self.image_datasets[x],
+                                                           # batch_sampler=StratifiedBatchSampler(self.image_datasets[x],
+                                                           #                                     batch_size=self.batch_size,
+                                                           #                                     shuffle=self.shuffle),
                                                            batch_size=self.batch_size,
                                                            shuffle=self.shuffle,
                                                            num_workers=self.num_workers)
