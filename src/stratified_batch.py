@@ -11,6 +11,8 @@ class StratifiedBatchSampler:
     def __init__(self, y, batch_size, shuffle=True, random_state=42):
         if torch.is_tensor(y):
             y = y.cpu().numpy()
+        #print(len(y.shape))
+        #print(y)
         assert len(y.shape) == 1, 'label array must be 1D'
         n_batches = int(len(y) / batch_size)
         self.skf = StratifiedKFold(n_splits=n_batches, shuffle=shuffle, random_state=random_state)
