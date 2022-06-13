@@ -88,6 +88,9 @@ class TransferLearningTrainer:
         :return:
         """
         self.dataloaders = {x: torch.utils.data.DataLoader(self.image_datasets[x],
+                                                           # batch_sampler=StratifiedBatchSampler(self.image_datasets[x],
+                                                           #                                     batch_size=self.batch_size,
+                                                           #                                     shuffle=self.shuffle),
                                                            batch_size=self.batch_size,
                                                            shuffle=self.shuffle,
                                                            num_workers=self.num_workers)
@@ -261,10 +264,11 @@ class TransferLearningTrainer:
                         return
             model.train(mode=was_training)
 
-    def print_misclassified(self, model_ft):
+    def print_misclassified(self, model_ft, plot=False):
         """
         Print a list of images that are misclassified in test
         :param model_ft: model used for test
+        :param plot: if true, plot misclassified images with titel
         :return:
         """
         class_names = self.image_datasets['train'].classes
@@ -281,9 +285,23 @@ class TransferLearningTrainer:
                 _, pred = torch.max(output, 1)
 
                 if label != pred:
-                    print(self.image_datasets['test'][i]['img_path'])
-                    # print(dataloaders['test'].dataset.samples[i*batch_size+j][0])
-                    print(f'must be {label}, but predicted {class_names[pred]}')
+                    title = self.image_datasets['test'][i]['img_path'][0]
+                    title += '\n' + f'must be {label}, but predicted {class_names[pred]}'
+                    if plot:
+                        _ = plt.figure(figsize=(4, 4), dpi=140)
+                        ax = plt.subplot()
+                        ax.set_title(title)
+                        inp = input.cpu().data
+                        inp = inp.numpy().transpose((1, 2, 0))
+                        mean = np.array([0.485, 0.456, 0.406])
+                        std = np.array([0.229, 0.224, 0.225])
+                        inp = std * inp + mean
+                        inp = np.clip(inp, 0, 1)
+                        ax.imshow(inp)
+                        ax.axis('off')
+                        plt.pause(0.001)
+                    else:
+                        print(title)
 
     def print_confusion_matrix(self, model_ft):
         """
@@ -314,8 +332,6 @@ class TransferLearningTrainer:
 
             labels = labels.data.cpu().numpy()
             y_true.extend(labels)  # Save Truth
-
-        # constant for classes
 
         # Build confusion matrix
         cf_matrix = confusion_matrix(y_true, y_pred)
@@ -360,4 +376,3 @@ class TransferLearningTrainer:
                     if labels[j] != preds[j]:
                         print(self.dataloaders['test'].dataset.samples[i * batch_size + j][0])
                         print(f'must be {labels[j]}, but predicted {self.class_names[preds[j]]}')
-
