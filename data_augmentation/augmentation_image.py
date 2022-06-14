@@ -37,7 +37,7 @@ class AugmentationImage():
         return
 
     def calculate_binary_mask(self):
-        if self.cnt == None:
+        if self.cnt is None:
             self.calculate_contour()
         mask_inv = np.zeros((600, 800), np.uint8)
         cv2.drawContours(mask_inv, [self.cnt], -1, (255, 255, 255), thickness=-2, lineType=cv2.LINE_AA)
@@ -45,7 +45,7 @@ class AugmentationImage():
         return
 
     def calculate_object_mask(self):
-        if self.cnt == None:
+        if self.cnt is None:
             self.calculate_contour()
         mask_inv = np.zeros((600, 800, 3), np.uint8)
         cv2.drawContours(mask_inv, [self.cnt], -1, (255, 255, 255), thickness=-2, lineType=cv2.LINE_AA)
@@ -53,17 +53,17 @@ class AugmentationImage():
         return
 
     def get_contour(self):
-        if self.cnt == None:
+        if self.cnt is None:
             self.calculate_contour()
         return self.cnt
 
     def get_binary_mask(self):
-        if self.binary_mask == None:
+        if self.binary_mask is None:
             self.calculate_binary_mask()
         return self.binary_mask
 
     def get_object_mask(self):
-        if self.object_mask == None:
+        if self.object_mask is None:
             self.calculate_object_mask()
         return self.object_mask
 
