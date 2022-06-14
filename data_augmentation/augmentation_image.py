@@ -73,20 +73,17 @@ class AugmentationImage():
         x_offset = int(x_center - (w/2))  # left up coord
         y_offset = int(y_center - (h/2))  # left up coord
         assert x_offset > 0 and y_offset > 0, "negative coordinates"
-        cropped_object = self.image[y:y + h, x:x + w]  # crop this BB to get only the lid
-        x_end = x_offset + cropped_object.shape[1]  # right down coord
-        y_end = y_offset + cropped_object.shape[0]  # right down coord
+        # crop this BB to get only the lid
+        binary_mask = self.get_binary_mask()[y:y + h, x:x + w]
+        fg = self.get_object_mask()[y: y + h, x:x + w]
+        x_end = x_offset + binary_mask.shape[1]  # right down coord
+        y_end = y_offset + binary_mask.shape[0]  # right down coord
+        assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
 
         # tutorial start
         # small_img is cropped_object, large_img is background
-        roi = background[y_offset:y_end, x_offset:x_end]
-
-        cropped_object_gray = cv2.cvtColor(cropped_object, cv2.COLOR_RGB2GRAY)
-        ret, mask = cv2.threshold(cropped_object_gray, 120, 255, cv2.THRESH_BINARY)
-
-        bg = cv2.bitwise_or(roi, roi, mask=mask)
-        mask_inv = cv2.bitwise_not(cropped_object_gray)
-        fg = cv2.bitwise_and(cropped_object, cropped_object, mask=mask_inv)
+        roi = background[y_offset: y_offset + h, x_offset:x_offset + w]
+        bg = cv2.bitwise_or(roi, roi, mask=binary_mask)
         final_roi = cv2.add(bg, fg)
         cropped_object = final_roi
         background[y_offset: y_offset + cropped_object.shape[0], x_offset: x_offset + cropped_object.shape[1]] = cropped_object
@@ -95,6 +92,7 @@ class AugmentationImage():
         #bg = cv2.bitwise_or(background, background, mask=self.binary_mask)
         #generated_image = cv2.add(bg, self.object_mask)
         #return generated_image
+
 
 
 

@@ -58,7 +58,7 @@ class DataAugmentation:
     def get_random_position(self):
         indexes = self.percentile_binary_mask.nonzero()
         i = randint(0, np.shape(indexes)[1])
-        x, y = indexes[0][i], indexes[1][i]
+        x, y = indexes[1][i], indexes[0][i]
         return x, y
 
     def get_random_background(self):
