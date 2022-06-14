@@ -67,6 +67,12 @@ class AugmentationImage():
             self.calculate_object_mask()
         return self.object_mask
 
+    def copy_and_paste(self, background, x, y):
+        print(x,y) # instead of print implement the paste with the center
+        bg = cv2.bitwise_or(background, background, mask=self.binary_mask)
+        generated_image = cv2.add(bg, self.object_mask)
+        return generated_image
+
 
 
 
