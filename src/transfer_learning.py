@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 import time
 import os
 import copy
+import numpy as np
 from torch.autograd import Variable
 from src.recycling_dataset import RecyclingDataset
+import warnings
+warnings.simplefilter("ignore", UserWarning)
+from src.stratified_batch import StratifiedBatchSampler
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -30,7 +34,8 @@ class TransferLearningTrainer:
     TB_DIR = STORE_DIR + "runs/"  # tensorboard save directory
     DATA_DIR = STORE_DIR + "data/"  # input data directory
 
-    def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4):
+    def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4, sos=''):
+        self.sos = sos
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
@@ -70,13 +75,13 @@ class TransferLearningTrainer:
         Create image datasets
         :return:
         """
-        self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, x),
+        self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, self.sos, x),
                                                        self.data_transforms[x])
                                for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_recycling_image_datasets(self):
-        self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", x + ".csv"),
+        self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", self.sos, x + ".csv"),
                                                    os.path.join(STORE_DIR, "data"),
                                                    self.data_transforms[x])
                                for x in ['train', 'test']}
@@ -87,11 +92,22 @@ class TransferLearningTrainer:
         Create data loaders
         :return:
         """
+        y_train = self.image_datasets['train'].img_labels['count'].tolist()
+        class_sample_count = np.array([len(np.where(y_train == t)[0]) for t in np.unique(y_train)])
+        weight = 1. / class_sample_count
+        samples_weight = np.array([weight[t] for t in y_train])
+        samples_weight = torch.from_numpy(samples_weight)
+        sampler = torch.utils.data.WeightedRandomSampler(samples_weight.type('torch.DoubleTensor'), len(samples_weight))
+        samplers = [sampler, None]
         self.dataloaders = {x: torch.utils.data.DataLoader(self.image_datasets[x],
-                                                           batch_size=self.batch_size,
-                                                           shuffle=self.shuffle,
+                                                           #sampler=samplers[i],
+                                                           batch_sampler=StratifiedBatchSampler(self.image_datasets[x].img_labels['count'],
+                                                                                                batch_size=self.batch_size,
+                                                                                                shuffle=self.shuffle),
+                                                           #batch_size=self.batch_size,
+                                                           #shuffle=self.shuffle,
                                                            num_workers=self.num_workers)
-                            for x in ['train', 'test']}
+                            for i, x in enumerate(['train', 'test'])}
 
     def train_model(self, model, criterion, optimizer, scheduler, num_epochs=25, model_name=None, early_stop=True):
         """
@@ -214,7 +230,7 @@ class TransferLearningTrainer:
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
         print(f'Best test acc: {best_acc:4f}')
 
-        # load best model weights
+        # load best model weights        
         model.load_state_dict(best_model_wts)
         path = self.MODELS_DIR + model_name + ".pth"
         torch.save(model.state_dict(), path)
@@ -261,10 +277,11 @@ class TransferLearningTrainer:
                         return
             model.train(mode=was_training)
 
-    def print_misclassified(self, model_ft):
+    def print_misclassified(self, model_ft, plot=False):
         """
         Print a list of images that are misclassified in test
         :param model_ft: model used for test
+        :param plot: if true, plot misclassified images with titel
         :return:
         """
         class_names = self.image_datasets['train'].classes
@@ -281,9 +298,23 @@ class TransferLearningTrainer:
                 _, pred = torch.max(output, 1)
 
                 if label != pred:
-                    print(self.image_datasets['test'][i]['img_path'])
-                    # print(dataloaders['test'].dataset.samples[i*batch_size+j][0])
-                    print(f'must be {label}, but predicted {class_names[pred]}')
+                    title = self.image_datasets['test'][i]['img_path'][self.image_datasets['test'][i]['img_path'].find('data')+5:]
+                    title += '\n' + f'must be {label}, but predicted {class_names[pred]}'
+                    if plot:
+                        _ = plt.figure(figsize=(4, 4), dpi=140)
+                        ax = plt.subplot()
+                        ax.set_title(title)
+                        inp = input.cpu().data
+                        inp = inp.numpy().transpose((1, 2, 0))
+                        mean = np.array([0.485, 0.456, 0.406])
+                        std = np.array([0.229, 0.224, 0.225])
+                        inp = std * inp + mean
+                        inp = np.clip(inp, 0, 1)
+                        ax.imshow(inp)
+                        ax.axis('off')
+                        plt.pause(0.001)
+                    else:
+                        print(title)
 
     def print_confusion_matrix(self, model_ft):
         """
@@ -292,9 +323,10 @@ class TransferLearningTrainer:
         :param model_ft: model used for test
         :return:
         """
-        #model_ft.load_state_dict(torch.load("./models/" + model_name))
-
         n_classes = len(self.class_names)
+        
+        model_ft.to(DEVICE)
+        model_ft.eval()
 
         from sklearn.metrics import confusion_matrix
         import seaborn as sn
@@ -314,8 +346,6 @@ class TransferLearningTrainer:
 
             labels = labels.data.cpu().numpy()
             y_true.extend(labels)  # Save Truth
-
-        # constant for classes
 
         # Build confusion matrix
         cf_matrix = confusion_matrix(y_true, y_pred)
@@ -360,4 +390,3 @@ class TransferLearningTrainer:
                     if labels[j] != preds[j]:
                         print(self.dataloaders['test'].dataset.samples[i * batch_size + j][0])
                         print(f'must be {labels[j]}, but predicted {self.class_names[preds[j]]}')
-
