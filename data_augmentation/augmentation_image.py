@@ -72,6 +72,7 @@ class AugmentationImage():
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
         x_offset = int(x_center - (w/2))  # left up coord
         y_offset = int(y_center - (h/2))  # left up coord
+        assert x_offset > 0 and y_offset > 0, "negative coordinates"
         cropped_object = self.image[y:y + h, x:x + w]  # crop this BB to get only the lid
         x_end = x_offset + cropped_object.shape[1]  # right down coord
         y_end = y_offset + cropped_object.shape[0]  # right down coord

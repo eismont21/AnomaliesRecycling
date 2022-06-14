@@ -6,6 +6,9 @@ import seaborn as sns
 import matplotlib.pylab as plt
 from data_augmentation.augmentation_image import AugmentationImage
 from random import randint
+from skimage.util import random_noise
+import csv
+from pathlib import Path
 
 #STORE_DIR = "/cvhci/temp/p22g5/"
 STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE"
@@ -64,6 +67,39 @@ class DataAugmentation:
         empty_tray_path = os.path.join(self.DATA_DIR, empty_tray_name)
         empty_tray = cv2.imread(empty_tray_path)
         return empty_tray
+
+    def copy_and_paste(self, label):
+        background = self.get_random_background()
+        if label == 0:
+            return self.get_noise_img(background)
+        for j in range(label):
+            x, y = self.get_random_position()
+            i = randint(0, len(self.masks))
+            background = self.masks[i].copy_and_paste(background, x, y)
+        return background
+
+    def generate(self, classes):
+        header = ['name', 'count', 'synthesized']
+        data = []
+        synthesize_dir = "synthesized"
+        Path(os.path.join(self.DATA_DIR, synthesize_dir)).mkdir(exist_ok=True)
+        for label in classes:
+            for i in range(classes[label]):
+                img = self.copy_and_paste(label)
+                img_name = "label_" + str(label) + "_"+ "img_" + str(i)+".jpg"
+                name = os.path.join(synthesize_dir, img_name)
+                filename = os.path.join(self.DATA_DIR, name)
+                cv2.imwrite(filename, img)
+                data.append([name, label, True])
+        with open('synthesized.csv', 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerows(data)
+
+    @staticmethod
+    def get_noise_img(img, mode='gaussian'):
+        return np.array(255*random_noise(img, mode=mode), dtype='uint8')
+
 
 
 
