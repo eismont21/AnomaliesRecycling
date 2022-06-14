@@ -86,7 +86,7 @@ class AugmentationImage():
         bg = cv2.bitwise_or(roi, roi, mask=binary_mask)
         final_roi = cv2.add(bg, fg)
         cropped_object = final_roi
-        background[y_offset: y_offset + cropped_object.shape[0], x_offset: x_offset + cropped_object.shape[1]] = cropped_object
+        background[y_offset: y_offset + h, x_offset: x_offset + w] = cropped_object
 
         return background
         #bg = cv2.bitwise_or(background, background, mask=self.binary_mask)
