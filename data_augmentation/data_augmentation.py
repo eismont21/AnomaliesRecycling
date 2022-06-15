@@ -4,7 +4,7 @@ import cv2
 import os
 import seaborn as sns
 import matplotlib.pylab as plt
-from data_augmentation.augmentation_image import AugmentationImage
+from augmentation_image import AugmentationImage
 from random import randint
 from skimage.util import random_noise
 import csv
@@ -19,8 +19,8 @@ class DataAugmentation:
     def __init__(self, data_dir, target_dir, zero_lid_dir, one_lid_dir):
         self.DATA_DIR = STORE_DIR + data_dir
         self.TARGET_DIR = STORE_DIR + target_dir
-        self.empty_trays = pd.read_csv(HOME_DIR+zero_lid_dir)
-        self.one_lids = pd.read_csv(HOME_DIR+one_lid_dir)
+        self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
+        self.one_lids = pd.read_csv(os.path.join(HOME_DIR,one_lid_dir))
         self.STANDARD_RESOLUTION = (600, 800)
         self.masks = None
         self.percentile_binary_mask = None
@@ -62,7 +62,7 @@ class DataAugmentation:
         return x, y
 
     def get_random_background(self):
-        i = randint(0, len(self.empty_trays))
+        i = randint(0, len(self.empty_trays)-1)
         empty_tray_name = self.empty_trays.iloc[i]['name'][1:]
         empty_tray_path = os.path.join(self.DATA_DIR, empty_tray_name)
         empty_tray = cv2.imread(empty_tray_path)
@@ -74,7 +74,7 @@ class DataAugmentation:
             return self.get_noise_img(background)
         for j in range(label):
             x, y = self.get_random_position()
-            i = randint(0, len(self.masks))
+            i = randint(0, len(self.masks)-1)
             background = self.masks[i].copy_and_paste(background, x, y)
         return background
 
@@ -91,7 +91,9 @@ class DataAugmentation:
                 filename = os.path.join(self.DATA_DIR, name)
                 cv2.imwrite(filename, img)
                 data.append([name, label, True])
-        with open(HOME_DIR + 'data/labels/synthesized/synthesized.csv', 'w', encoding='UTF8', newline='') as f:
+        output_csv = HOME_DIR + 'data/labels/synthesized/'
+        Path(output_csv).mkdir(exist_ok=True)
+        with open(output_csv + 'synthesized.csv', 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(header)
             writer.writerows(data)
