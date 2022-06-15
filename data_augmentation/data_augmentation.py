@@ -10,8 +10,8 @@ from skimage.util import random_noise
 import csv
 from pathlib import Path
 
-#STORE_DIR = "/cvhci/temp/p22g5/"
-STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE"
+STORE_DIR = "/cvhci/temp/p22g5/"
+#STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE"
 HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 
 
@@ -19,8 +19,8 @@ class DataAugmentation:
     def __init__(self, data_dir, target_dir, zero_lid_dir, one_lid_dir):
         self.DATA_DIR = STORE_DIR + data_dir
         self.TARGET_DIR = STORE_DIR + target_dir
-        self.empty_trays = pd.read_csv(zero_lid_dir)
-        self.one_lids = pd.read_csv(one_lid_dir)
+        self.empty_trays = pd.read_csv(HOME_DIR+zero_lid_dir)
+        self.one_lids = pd.read_csv(HOME_DIR+one_lid_dir)
         self.STANDARD_RESOLUTION = (600, 800)
         self.masks = None
         self.percentile_binary_mask = None
@@ -91,7 +91,7 @@ class DataAugmentation:
                 filename = os.path.join(self.DATA_DIR, name)
                 cv2.imwrite(filename, img)
                 data.append([name, label, True])
-        with open('synthesized.csv', 'w', encoding='UTF8', newline='') as f:
+        with open(HOME_DIR + 'data/labels/synthesized/synthesized.csv', 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(header)
             writer.writerows(data)
