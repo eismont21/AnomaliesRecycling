@@ -232,8 +232,10 @@ class TransferLearningTrainer:
 
         # load best model weights        
         model.load_state_dict(best_model_wts)
-        path = self.MODELS_DIR + model_name + ".pth"
+        path = self.MODELS_DIR + model_name + "_weights.pth"
         torch.save(model.state_dict(), path)
+        path = self.MODELS_DIR + model_name + "_model.pth"
+        torch.save(model, path)
         writer.close()
         return model
 
@@ -277,7 +279,7 @@ class TransferLearningTrainer:
                         return
             model.train(mode=was_training)
 
-    def print_misclassified(self, model_ft, plot=False):
+    def print_misclassified(self, model_ft, dataset='test', plot=False):
         """
         Print a list of images that are misclassified in test
         :param model_ft: model used for test
@@ -287,8 +289,9 @@ class TransferLearningTrainer:
         class_names = self.image_datasets['train'].classes
         model_ft.to(DEVICE)
         model_ft.eval()
+        images = {}
         with torch.no_grad():
-            for i, sample in enumerate(self.image_datasets['test'], 0):
+            for i, sample in enumerate(self.image_datasets[dataset], 0):
                 input, label = sample['image'], sample['label']
                 # print(input)
                 input = input.to(DEVICE)
@@ -298,7 +301,8 @@ class TransferLearningTrainer:
                 _, pred = torch.max(output, 1)
 
                 if label != pred:
-                    title = self.image_datasets['test'][i]['img_path'][self.image_datasets['test'][i]['img_path'].find('data')+5:]
+                    title = self.image_datasets[dataset][i]['img_path'][self.image_datasets[dataset][i]['img_path'].find('data')+5:]
+                    images[title] = (label, class_names[pred])
                     title += '\n' + f'must be {label}, but predicted {class_names[pred]}'
                     if plot:
                         _ = plt.figure(figsize=(4, 4), dpi=140)
@@ -315,6 +319,7 @@ class TransferLearningTrainer:
                         plt.pause(0.001)
                     else:
                         print(title)
+        return images
 
     def print_confusion_matrix(self, model_ft):
         """
