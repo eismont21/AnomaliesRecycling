@@ -95,7 +95,8 @@ class TransferLearningTrainer:
         """
         y_train = self.image_datasets['train'].img_labels['count'].tolist()
         class_sample_count = np.array([len(np.where(y_train == t)[0]) for t in np.unique(y_train)])
-        weight = 1. / class_sample_count
+        #weight = 1. / class_sample_count
+        weight = 1. - class_sample_count / sum(class_sample_count)
         samples_weight = np.array([weight[t] for t in y_train])
         samples_weight = torch.from_numpy(samples_weight)
         sampler = torch.utils.data.WeightedRandomSampler(samples_weight.type('torch.DoubleTensor'), len(samples_weight))
