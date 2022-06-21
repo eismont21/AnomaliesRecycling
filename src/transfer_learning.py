@@ -5,6 +5,7 @@ from torch.backends import cudnn
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 from torchvision import datasets, transforms
+import torchmetrics
 import matplotlib.pyplot as plt
 import time
 import os
@@ -94,7 +95,8 @@ class TransferLearningTrainer:
         """
         y_train = self.image_datasets['train'].img_labels['count'].tolist()
         class_sample_count = np.array([len(np.where(y_train == t)[0]) for t in np.unique(y_train)])
-        weight = 1. / class_sample_count
+        #weight = 1. / class_sample_count
+        weight = 1. - class_sample_count / sum(class_sample_count)
         samples_weight = np.array([weight[t] for t in y_train])
         samples_weight = torch.from_numpy(samples_weight)
         sampler = torch.utils.data.WeightedRandomSampler(samples_weight.type('torch.DoubleTensor'), len(samples_weight))
@@ -143,6 +145,9 @@ class TransferLearningTrainer:
 
         best_model_wts = copy.deepcopy(model.state_dict())
         best_acc = 0.0
+        best_mae = 1.0
+        best_mse = 1.0
+        best_r2 = 0.0
 
         for epoch in range(num_epochs):
             print(f'Epoch {epoch}/{num_epochs - 1}')
@@ -157,6 +162,10 @@ class TransferLearningTrainer:
 
                 running_loss = 0.0
                 running_corrects = 0
+                
+                get_mae = torchmetrics.MeanAbsoluteError().to(DEVICE)
+                get_mse = torchmetrics.MeanSquaredError().to(DEVICE)
+                get_r2 = torchmetrics.R2Score().to(DEVICE)
 
                 # Iterate over data.
                 for sample in self.dataloaders[phase]:
@@ -176,6 +185,10 @@ class TransferLearningTrainer:
                         outputs = model(inputs)
                         _, preds = torch.max(outputs, 1)
                         loss = criterion(outputs, labels)
+                        
+                        mae = get_mae(preds, labels)
+                        mse = get_mse(preds, labels)
+                        r2 = get_r2(preds, labels)
 
                         # backward + optimize only if in training phase
                         if phase == 'train':
@@ -190,8 +203,16 @@ class TransferLearningTrainer:
 
                 epoch_loss = running_loss / dataset_sizes[phase]
                 epoch_acc = running_corrects.double() / dataset_sizes[phase]
+                
+                epoch_mae = get_mae.compute()
+                epoch_mse = get_mse.compute()
+                epoch_r2 = get_r2.compute()
 
-                print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+                print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} MAE: {epoch_mae:.4f} MSE: {epoch_mse:.4f} R^2: {epoch_r2:.4f}')
+                
+                get_mae.reset()
+                get_mse.reset()
+                get_r2.reset()
 
                 y_loss[phase].append(epoch_loss)
                 y_acc[phase].append(epoch_acc)
@@ -204,9 +225,16 @@ class TransferLearningTrainer:
                     writer.add_scalars("accuracy", logger_acc, global_step=epoch)
 
                 # deep copy the model
-                if phase == 'test' and epoch_acc > best_acc:
-                    best_acc = epoch_acc
-                    best_model_wts = copy.deepcopy(model.state_dict())
+                if phase == 'test':
+                    if epoch_acc > best_acc:
+                        best_acc = epoch_acc
+                        best_model_wts = copy.deepcopy(model.state_dict())
+                    if epoch_mae < best_mae:
+                        best_mae = epoch_mae
+                    if epoch_mse < best_mse:
+                        best_mse = epoch_mse
+                    if epoch_r2 > best_r2:
+                        best_r2 = epoch_r2
 
                 # Early Stopping
                 if early_stop and phase == 'test':
@@ -229,6 +257,9 @@ class TransferLearningTrainer:
         time_elapsed = time.time() - since
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
         print(f'Best test acc: {best_acc:4f}')
+        print(f'Best test mae: {best_mae:4f}')
+        print(f'Best test mse: {best_mse:4f}')
+        print(f'Best test R^2: {best_r2:4f}')
 
         # load best model weights        
         model.load_state_dict(best_model_wts)
