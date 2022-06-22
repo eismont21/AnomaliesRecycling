@@ -3,10 +3,11 @@ import numpy as np
 from scipy.spatial import distance
 
 
-class AugmentationImage():
+class AugmentationImage:
     #Only make augmentation images with images from the one_lid.csv file
-    def __init__(self, image):
+    def __init__(self, image, tags):
         self.image = image
+        self.tags = tags
         self.cnt = None
         self.binary_mask = None
         self.object_mask = None
@@ -68,7 +69,6 @@ class AugmentationImage():
         return self.object_mask
 
     def copy_and_paste(self, background, x_center, y_center):
-
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
         x_offset = int(x_center - (w/2))  # left up coord
         y_offset = int(y_center - (h/2))  # left up coord
@@ -89,9 +89,21 @@ class AugmentationImage():
         background[y_offset: y_offset + h, x_offset: x_offset + w] = cropped_object
 
         return background
-        #bg = cv2.bitwise_or(background, background, mask=self.binary_mask)
-        #generated_image = cv2.add(bg, self.object_mask)
-        #return generated_image
+
+    def get_bb(self, background, x_center, y_center):
+        x, y, w, h = cv2.boundingRect(self.cnt)  # find BB from contour
+        x_offset = int(x_center - (w / 2))  # left up coord
+        y_offset = int(y_center - (h / 2))  # left up coord
+        assert x_offset > 0 and y_offset > 0, "negative coordinates"
+        # crop this BB to get only the lid
+        binary_mask = self.get_binary_mask()[y:y + h, x:x + w]
+        x_end = x_offset + binary_mask.shape[1]  # right down coord
+        y_end = y_offset + binary_mask.shape[0]  # right down coord
+        assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
+        return {'x1': x_offset, 'x2': x_end, 'y1': y_offset, 'y2': y_end}
+
+
+
 
 
 
