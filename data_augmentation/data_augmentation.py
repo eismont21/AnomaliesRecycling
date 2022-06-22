@@ -8,16 +8,20 @@ from augmentation_image import AugmentationImage
 from random import randint
 from skimage.util import random_noise
 from pathlib import Path
+import imutils
 
-STORE_DIR = "/cvhci/temp/p22g5/"
-HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
+#STORE_DIR = "/cvhci/temp/p22g5/"
+#HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 #STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE/"
 #HOME_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/"
+STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
+HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
 
 
 class DataAugmentation:
     def __init__(self, data_dir, zero_lid_dir, one_lid_dir):
-        self.DATA_DIR = STORE_DIR + data_dir
+        #self.DATA_DIR = STORE_DIR + data_dir
+        self.DATA_DIR = data_dir
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
         self.STANDARD_RESOLUTION = (600, 800)
