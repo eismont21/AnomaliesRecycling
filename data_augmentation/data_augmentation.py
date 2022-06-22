@@ -4,7 +4,7 @@ import cv2
 import os
 import seaborn as sns
 import matplotlib.pylab as plt
-from .augmentation_image import AugmentationImage
+from augmentation_image import AugmentationImage
 from random import randint
 from skimage.util import random_noise
 from pathlib import Path
