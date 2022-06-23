@@ -4,7 +4,7 @@ from torchvision.io import read_image, ImageReadMode
 from torch.utils.data import Dataset
 import torch
 
-
+# git fix
 class RecyclingDataset(Dataset):
     """
     Custom class for custom dataset
