@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 from scipy.spatial import distance
+from random import randint
+import imutils
 
 
 class AugmentationImage:
@@ -70,15 +72,15 @@ class AugmentationImage:
 
     def copy_and_paste(self, background, x_center, y_center):
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
-        x_offset = int(x_center - (w/2))  # left up coord
-        y_offset = int(y_center - (h/2))  # left up coord
-        assert x_offset > 0 and y_offset > 0, "negative coordinates"
         # crop this BB to get only the lid
-        binary_mask = self.get_binary_mask()[y:y + h, x:x + w]
-        fg = self.get_object_mask()[y: y + h, x:x + w]
+        binary_mask, fg = self.get_rotated_object(x, y, w, h)
+        h, w = binary_mask.shape[0], binary_mask.shape[1]
+        x_offset = int(x_center - (w / 2))  # left up coord
+        y_offset = int(y_center - (h / 2))  # left up coord
+        #assert x_offset > 0 and y_offset > 0, "negative coordinates"
         x_end = x_offset + binary_mask.shape[1]  # right down coord
         y_end = y_offset + binary_mask.shape[0]  # right down coord
-        assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
+        #assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
 
         # tutorial start
         # small_img is cropped_object, large_img is background
@@ -89,6 +91,30 @@ class AugmentationImage:
         background[y_offset: y_offset + h, x_offset: x_offset + w] = cropped_object
 
         return background
+
+    def get_rotated_object(self, x, y, w, h):
+        angle = randint(0, 360)
+        rotated_bin_inv = imutils.rotate_bound(cv2.bitwise_not(self.get_binary_mask()[y:y + h, x:x + w]), angle)
+        rotated_bin = cv2.bitwise_not(rotated_bin_inv)
+        rotated_fg = imutils.rotate_bound(self.change_object_color()[y: y + h, x:x + w], angle)
+        return rotated_bin, rotated_fg
+
+    def change_object_color(self):
+        if self.cnt is None:
+            self.calculate_contour()
+        is_change = randint(0,1)
+        if is_change == 0:
+            return self.object_mask
+        else:
+            r = randint(0, 255)
+            g = randint(0, 255)
+            b = randint(0, 255)
+            color_image = np.full(self.object_mask.shape, (r, g, b), np.uint8)
+            color_object_image = cv2.addWeighted(color_image, 0.2, cv2.cvtColor(cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY), cv2.COLOR_GRAY2RGB), 0.8, 0)
+            mask_inv = np.zeros((600, 800, 3), np.uint8)
+            cv2.drawContours(mask_inv, [self.cnt], -1, (255, 255, 255), thickness=-2, lineType=cv2.LINE_AA)
+            object_mask_color = cv2.bitwise_and(mask_inv, color_object_image)
+            return object_mask_color
 
     def get_bb(self, background, x_center, y_center):
         x, y, w, h = cv2.boundingRect(self.cnt)  # find BB from contour
