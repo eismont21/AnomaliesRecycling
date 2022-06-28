@@ -401,6 +401,7 @@ class TransferLearningTrainer:
             b = [e / sum(row) for e in row]
             matrix_new[i] = b.copy()
         matrix_new = np.array(matrix_new)
+        self.confusion_diagonal = matrix_new.diagonal()
         df_cm = pd.DataFrame(matrix_new, index=[i for i in self.class_names],
                              columns=[i for i in self.class_names])
         plt.figure(figsize=(4, 4), dpi=140)
