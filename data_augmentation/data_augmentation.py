@@ -101,14 +101,15 @@ class DataAugmentation:
                 x, y = self.get_random_position()
                 i = randint(0, len(self.masks) - 1)
                 bb_new = self.masks[i].get_bb(background, x, y)
-                if not self._check_overlap(bbs, bb_new, self.iou_tolerance):
+                if not self._check_overlap_2(bbs, bb_new, self.iou_tolerance):
                     break
                 else:
                     print("Overlapping! Generate new!")
             background = self.masks[i].copy_and_paste(background, x, y)
-            df.iloc[0]['overlapping'] = int(self._check_overlap(bbs, bb_new, self.iou_bound))
-            self.combine_tags(df, self.masks[i].tags)
             bbs.append(bb_new)
+            df.iloc[0]['overlapping'] = int(self._check_overlap_2(bbs, bb_new, self.iou_bound))
+            self.combine_tags(df, self.masks[i].tags)
+
         df.iloc[0]['count'] = label
         df.iloc[0]['synthesized'] = 1
         df[['name']] = df[['name']].astype(str)
@@ -125,7 +126,31 @@ class DataAugmentation:
                 else:
                     result.iloc[0][tag] = int(result.iloc[0][tag]) or int(new.iloc[0][tag])
 
-    def _iou(mask1, mask2):
+    def get_mask_from_bb(self, bb):
+        a = np.zeros(self.STANDARD_RESOLUTION, dtype=int)
+        for x in range(bb['x1'], bb['x2'] + 1):
+            for y in range(bb['y1'], bb['y2'] + 1):
+                a[x, y] = 1
+        return a
+
+    def get_joined_mask(self, masks):
+        a = np.zeros(self.STANDARD_RESOLUTION, dtype=int)
+        for mask in masks:
+            np.bitwise_or(a, mask)
+        return a
+
+    def _check_overlap_2(self, bbs, bb_new, tol):
+        bbs_all = bbs + [bb_new]
+        for i in range(len(bbs_all)):
+            bbs_current = bbs_all[:i] + bbs_all[i+1:]
+            masks = list(map(self.get_mask_from_bb, bbs_current))
+            joined_mask = self.get_joined_mask(masks)
+            bb_current = self.get_mask_from_bb(bbs_all[i])
+            if self._iou(joined_mask, bb_current) > tol:
+                return True
+        return False
+
+    def _iou(self, mask1, mask2):
         mask1_area = np.count_nonzero(mask1 == 1)
         mask2_area = np.count_nonzero(mask2 == 1)
         intersection = np.count_nonzero(np.logical_and(mask1, mask2))
