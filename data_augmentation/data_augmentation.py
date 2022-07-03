@@ -8,7 +8,7 @@ from augmentation_image import AugmentationImage
 from random import randint
 from skimage.util import random_noise
 from pathlib import Path
-import imutils
+from coco_annotations import create_coco_json
 
 #STORE_DIR = "/cvhci/temp/p22g5/"
 #HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
@@ -86,7 +86,8 @@ class DataAugmentation:
         empty_tray = cv2.imread(empty_tray_path)
         return empty_tray
 
-    def copy_and_paste(self, label):
+    def copy_and_paste(self, label, rotate, change_color):
+        object_binary_masks = []
         background = self.get_random_background()
         d = [np.nan for i in range(len(self.inherited_tags))]
         df = pd.DataFrame([d], columns=self.inherited_tags)
@@ -94,18 +95,32 @@ class DataAugmentation:
         name = os.path.join(self.synthesize_dir, img_name)
         if label == 0:
             return self.get_noise_img(background), \
-                   pd.DataFrame([[name, 0, 0, np.nan, np.nan, 0, 0, 0, 0, 0, 1]], columns=self.inherited_tags)
+                   pd.DataFrame([[name, 0, 0, np.nan, np.nan, 0, 0, 0, 0, 0, 1]], columns=self.inherited_tags), \
+                   object_binary_masks
         bbs = []
         for j in range(label):
-            while(True):
+            while True:
+                if rotate:
+                    angle = randint(0, 360)
+                else:
+                    angle = 0
                 x, y = self.get_random_position()
                 i = randint(0, len(self.masks) - 1)
-                bb_new = self.masks[i].get_bb(background, x, y)
-                if not self._check_overlap_2(bbs, bb_new, self.iou_tolerance):
-                    break
-                else:
-                    print("Overlapping! Generate new!")
-            background = self.masks[i].copy_and_paste(background, x, y)
+                try:
+                    bb_new = self.masks[i].get_bb(background, x, y, angle, change_color=change_color)
+                    if not self._check_overlap_2(bbs, bb_new, self.iou_tolerance):
+                        break
+                    else:
+                        print("Overlapping! Generate new!")
+                except AssertionError:
+                    print('Overlapping! Generate new!')
+            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color)
+            for k in range(len(object_binary_masks)):
+                bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
+                mask_inv = np.zeros((600, 800), np.uint8)
+                new = cv2.bitwise_and(bin_xor, cv2.bitwise_not(object_binary_masks[k]))
+                object_binary_masks[k] = cv2.bitwise_not(new)
+            object_binary_masks.append(binary_mask)
             bbs.append(bb_new)
             df.iloc[0]['overlapping'] = int(self._check_overlap_2(bbs, bb_new, self.iou_bound))
             self.combine_tags(df, self.masks[i].tags)
@@ -116,7 +131,7 @@ class DataAugmentation:
         df.at[0, 'name'] = str(name)
         tags = ["count", "edge", "transparent", "inside", "overlapping", "dark color", "open lid", "synthesized"]
         df[tags] = df[tags].astype(int)
-        return background, df
+        return background, df, object_binary_masks
 
     def combine_tags(self, result, new):
         for tag in self.inherited_tags:
@@ -128,9 +143,9 @@ class DataAugmentation:
 
     def get_mask_from_bb(self, bb):
         a = np.zeros(self.STANDARD_RESOLUTION, dtype=int)
-        for x in range(bb['x1'], bb['x2'] + 1):
-            for y in range(bb['y1'], bb['y2'] + 1):
-                a[x, y] = 1
+        for x in range(bb['x1'], bb['x2']):
+            for y in range(bb['y1'], bb['y2']):
+                a[y, x] = 1
         return a
 
     def get_joined_mask(self, masks):
@@ -165,21 +180,32 @@ class DataAugmentation:
                 return True
         return False
 
-    def generate(self, classes):
+    def generate(self, classes, rotate=True, change_color=False, coco_annotation=True):
         new_csv = pd.DataFrame()
-        Path(os.path.join(self.DATA_DIR, self.synthesize_dir)).mkdir(exist_ok=True)
+        synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
+        annotations_dir = os.path.join(synthesized_dir, 'annotations')
+        data_dir = os.path.join(synthesized_dir, 'data')
+        Path(synthesized_dir).mkdir(exist_ok=True)
+        Path(annotations_dir).mkdir(exist_ok=True)
+        Path(data_dir).mkdir(exist_ok=True)
         for label in classes:
             for i in range(classes[label]):
-                img, df = self.copy_and_paste(label)
-                img_name = "label_" + str(label) + "_" + "img_" + str(i) + ".jpg"
-                name = os.path.join(self.synthesize_dir, img_name)
+                img, df, bin_masks = self.copy_and_paste(label, rotate, change_color)
+                img_id = "label_" + str(label) + "_" + "img_" + str(i)
+                img_name = img_id + ".jpg"
+                for j in range(len(bin_masks)):
+                    bin_name = os.path.join(annotations_dir, img_id + '_' + 'lid' + '_' + str(j) + '.jpg')
+                    cv2.imwrite(bin_name, bin_masks[j])
+                name = os.path.join(data_dir, img_name)
                 df.at[0, 'name'] = name
                 new_csv = pd.concat([new_csv, df], ignore_index=True)
                 filename = os.path.join(self.DATA_DIR, name)
                 cv2.imwrite(filename, img)
-        output_csv = HOME_DIR + 'data/labels/synthesized/'
-        Path(output_csv).mkdir(exist_ok=True)
-        new_csv.to_csv(output_csv + 'synthesized.csv', index=False)
+        new_csv.to_csv(synthesized_dir + 'synthesized.csv', index=False)
+        if coco_annotation:
+            create_coco_json(data_dir, annotations_dir, synthesized_dir)
+
+
 
     @staticmethod
     def get_noise_img(img, mode='gaussian'):

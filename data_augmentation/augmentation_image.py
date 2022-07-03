@@ -70,10 +70,10 @@ class AugmentationImage:
             self.calculate_object_mask()
         return self.object_mask
 
-    def copy_and_paste(self, background, x_center, y_center):
+    def copy_and_paste(self, background, x_center, y_center, angle, change_color):
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
         # crop this BB to get only the lid
-        binary_mask, fg = self.get_rotated_object(x, y, w, h)
+        binary_mask, fg = self.get_rotated_object(x, y, w, h, angle, change_color)
         h, w = binary_mask.shape[0], binary_mask.shape[1]
         x_offset = int(x_center - (w / 2))  # left up coord
         y_offset = int(y_center - (h / 2))  # left up coord
@@ -81,29 +81,29 @@ class AugmentationImage:
         x_end = x_offset + binary_mask.shape[1]  # right down coord
         y_end = y_offset + binary_mask.shape[0]  # right down coord
         #assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
-
+        roi = background[y_offset: y_offset + h, x_offset:x_offset + w]
         # tutorial start
         # small_img is cropped_object, large_img is background
-        roi = background[y_offset: y_offset + h, x_offset:x_offset + w]
         bg = cv2.bitwise_or(roi, roi, mask=binary_mask)
         final_roi = cv2.add(bg, fg)
         cropped_object = final_roi
         background[y_offset: y_offset + h, x_offset: x_offset + w] = cropped_object
+        bin_mask = cv2.bitwise_not(np.zeros((600, 800), np.uint8))
+        bin_mask[y_offset: y_offset + h, x_offset: x_offset + w] = binary_mask
 
-        return background
+        return background, bin_mask
 
-    def get_rotated_object(self, x, y, w, h):
-        angle = randint(0, 360)
+    def get_rotated_object(self, x, y, w, h, angle, change_color):
         rotated_bin_inv = imutils.rotate_bound(cv2.bitwise_not(self.get_binary_mask()[y:y + h, x:x + w]), angle)
         rotated_bin = cv2.bitwise_not(rotated_bin_inv)
-        rotated_fg = imutils.rotate_bound(self.change_object_color()[y: y + h, x:x + w], angle)
+        rotated_fg = imutils.rotate_bound(self.change_object_color(change_color)[y: y + h, x:x + w], angle)
         return rotated_bin, rotated_fg
 
-    def change_object_color(self):
+    def change_object_color(self, change_color):
         if self.cnt is None:
             self.calculate_contour()
-        is_change = randint(0,1)
-        if is_change == 0:
+        is_change = randint(0, 1)
+        if is_change == 0 or not change_color:
             return self.object_mask
         else:
             r = randint(0, 255)
@@ -116,8 +116,11 @@ class AugmentationImage:
             object_mask_color = cv2.bitwise_and(mask_inv, color_object_image)
             return object_mask_color
 
-    def get_bb(self, background, x_center, y_center):
+    def get_bb(self, background, x_center, y_center, angle, change_color):
         x, y, w, h = cv2.boundingRect(self.cnt)  # find BB from contour
+        if not angle == 0:
+            rotated, _ = self.get_rotated_object(x, y, w, h, angle, change_color=change_color)
+            h, w = rotated.shape[0], rotated.shape[1]
         x_offset = int(x_center - (w / 2))  # left up coord
         y_offset = int(y_center - (h / 2))  # left up coord
         assert x_offset > 0 and y_offset > 0, "negative coordinates"
@@ -127,6 +130,9 @@ class AugmentationImage:
         y_end = y_offset + binary_mask.shape[0]  # right down coord
         assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
         return {'x1': x_offset, 'x2': x_end, 'y1': y_offset, 'y2': y_end}
+
+
+
 
 
 
