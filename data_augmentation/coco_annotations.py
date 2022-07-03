@@ -46,7 +46,7 @@ def create_coco_json(image_dir, annotation_dir, root_dir):
         image_name = os.path.splitext(filename)[0]
         image_info = {
             'image_id': image_id,
-            'file_name': jpg_image,
+            'file_name': filename,
             'width': int(800),
             'height': int(600)
         }
