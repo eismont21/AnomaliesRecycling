@@ -73,6 +73,7 @@ def add_standard_config(cfg):
     cfg.merge_from_file(RETINANET_CONFIG)
     cfg.OUTPUT_DIR = ROOT_DIR + "output_segmentation/maskrcnn/"
     cfg.INPUT.MASK_FORMAT = 'bitmask'
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 
 
 def save_model(model):
