@@ -38,7 +38,7 @@ coco_output = {
 }
 
 
-def create_coco_json(image_dir, annotation_dir, root_dir):
+def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename):
     image_id = 0
     annotation_id = 0
     for filename in [file for file in os.listdir(image_dir) if file.endswith('.jpg')]:
@@ -56,6 +56,9 @@ def create_coco_json(image_dir, annotation_dir, root_dir):
             annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
             annotation_image = cv2.bitwise_not(annotation_image)
             rle = pycocotools.mask.encode(np.asfortranarray(annotation_image))
+            rle_dict = dict()
+            rle_dict["size"] = list(rle['size'])
+            rle_dict["counts"] = rle['counts'].decode("ascii")
             area = pycocotools.mask.area(rle)
             x, y, w, h = cv2.boundingRect(annotation_image)
 
@@ -63,7 +66,7 @@ def create_coco_json(image_dir, annotation_dir, root_dir):
                 'id': annotation_id,
                 'image_id': image_id,
                 'category_id': 1,
-                'segmentation': str(rle),
+                'segmentation': rle_dict,
                 'area': int(area),
                 'bbox': [int(x), int(y), int(w), int(h)],
                 'bbox_mode': BoxMode.XYWH_ABS,
@@ -72,9 +75,10 @@ def create_coco_json(image_dir, annotation_dir, root_dir):
 
             coco_output['annotations'].append(annotation_info)
             annotation_id += 1
+            #print("annotaion_id = ", annotation_id)
         image_id += 1
-    json_string = json.dumps(coco_output)
-    json_path = os.path.join(root_dir, 'coco.json')
+    json_string = json.dumps(coco_output, indent=4)
+    json_path = os.path.join(root_dir, anno_filename + '.json')
     json_file = open(json_path, 'w')
     json_file.write(json_string)
     json_file.close()

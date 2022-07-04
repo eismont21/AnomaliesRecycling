@@ -4,24 +4,24 @@ import cv2
 import os
 import seaborn as sns
 import matplotlib.pylab as plt
-from augmentation_image import AugmentationImage
+from data_augmentation.augmentation_image import AugmentationImage
 from random import randint
 from skimage.util import random_noise
 from pathlib import Path
-from coco_annotations import create_coco_json
+from data_augmentation.coco_annotations import create_coco_json
 
-#STORE_DIR = "/cvhci/temp/p22g5/"
-#HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
+STORE_DIR = "/cvhci/temp/p22g5/"
+HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 #STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE/"
 #HOME_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/"
-STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
-HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
+#STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
+#HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
 
 
 class DataAugmentation:
     def __init__(self, data_dir, zero_lid_dir, one_lid_dir):
-        #self.DATA_DIR = STORE_DIR + data_dir
-        self.DATA_DIR = data_dir
+        self.DATA_DIR = STORE_DIR + data_dir
+        #self.DATA_DIR = data_dir
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
         self.STANDARD_RESOLUTION = (600, 800)
@@ -180,11 +180,11 @@ class DataAugmentation:
                 return True
         return False
 
-    def generate(self, classes, rotate=True, change_color=False, coco_annotation=True):
+    def generate(self, classes, rotate=True, change_color=False, coco_annotation=True, data_dir_name='data'):
         new_csv = pd.DataFrame()
         synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
-        annotations_dir = os.path.join(synthesized_dir, 'annotations')
-        data_dir = os.path.join(synthesized_dir, 'data')
+        annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
+        data_dir = os.path.join(synthesized_dir, data_dir_name)
         Path(synthesized_dir).mkdir(exist_ok=True)
         Path(annotations_dir).mkdir(exist_ok=True)
         Path(data_dir).mkdir(exist_ok=True)
@@ -201,9 +201,9 @@ class DataAugmentation:
                 new_csv = pd.concat([new_csv, df], ignore_index=True)
                 filename = os.path.join(self.DATA_DIR, name)
                 cv2.imwrite(filename, img)
-        new_csv.to_csv(synthesized_dir + 'synthesized.csv', index=False)
+        new_csv.to_csv(os.path.join(synthesized_dir, 'synthesized_' + data_dir_name + '.csv'), index=False)
         if coco_annotation:
-            create_coco_json(data_dir, annotations_dir, synthesized_dir)
+            create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name)
 
 
 
