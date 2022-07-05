@@ -4,7 +4,7 @@ import os.path
 import cv2
 import numpy as np
 from detectron2.structures import BoxMode
-import pycocotools.mask
+from scipy.interpolate import splprep, splev
 
 INFO = {
     'description': 'Synthesized Coco Dataset',
@@ -55,20 +55,24 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename):
             jpg_annotation = os.path.join(annotation_dir, annotation_name)
             annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
             annotation_image = cv2.bitwise_not(annotation_image)
-            #annotation_image.clip(max=1)
-            #rle = pycocotools.mask.encode(np.asfortranarray(annotation_image))
-            #rle_dict = dict()
-            #rle_dict["size"] = list(rle['size'])
-            #rle_dict["counts"] = rle['counts'].decode("utf-8")
-            #area = pycocotools.mask.area(rle)
-            #x, y, w, h = cv2.boundingRect(annotation_image)
-            cnt, hierachy = cv2.findContours(annotation_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnt, _ = cv2.findContours(annotation_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             contours = sorted(cnt, key=cv2.contourArea, reverse=True)
-            contours = contours[0]
-            x, y, w, h = cv2.boundingRect(contours)
-            area = cv2.contourArea(contours)
+            contour = contours[0]
+
+            x, y = contour.T
+            x = x.tolist()[0]
+            y = y.tolist()[0]
+            tck, u = splprep([x, y], s=1.0)
+            u_new = np.linspace(u.min(), u.max(), 25)
+            x_new, y_new = splev(u_new, tck, der=0)
+            res_array = [[[int(i[0]), int(i[1])]] for i in zip(x_new, y_new)]
+            contour = np.asarray(res_array, dtype=np.int32)
+
+            x, y, w, h = cv2.boundingRect(contour)
+            area = cv2.contourArea(contour)
+
             poly = []
-            for pos in contours:
+            for pos in contour:
                 poly.append(float(pos[0][0]))
                 poly.append(float(pos[0][1]))
 
