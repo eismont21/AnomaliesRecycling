@@ -5,7 +5,7 @@ import os
 import seaborn as sns
 import matplotlib.pylab as plt
 from data_augmentation.augmentation_image import AugmentationImage
-from random import randint
+from random import randint, shuffle
 from skimage.util import random_noise
 from pathlib import Path
 from data_augmentation.coco_annotations import create_coco_json
@@ -24,6 +24,7 @@ class DataAugmentation:
         #self.DATA_DIR = data_dir
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
+        self.split_randomly(n=len(self.one_lids), p=0.2)
         self.STANDARD_RESOLUTION = (600, 800)
         self.masks = None
         self.percentile_binary_mask = None
@@ -41,6 +42,13 @@ class DataAugmentation:
         self.iou_tolerance = 0.9
         self.iou_bound = 0.05
         self.synthesize_dir = "synthesized"
+
+    def split_randomly(self, n, p):
+        indexes = list(range(0, n))
+        shuffle(indexes)
+        last = int(n * (1 - p))
+        self.train_indexes = indexes[:last]
+        self.test_indexes = indexes[last:]
 
     def extract_masks(self):
         self.masks = []
@@ -85,8 +93,18 @@ class DataAugmentation:
         empty_tray_path = os.path.join(self.DATA_DIR, empty_tray_name)
         empty_tray = cv2.imread(empty_tray_path)
         return empty_tray
+    
+    def get_random_object(self, pick_from="all"):
+        if pick_from == "train":
+            i = self.train_indexes[randint(0, len(self.train_indexes)-1)]
+        elif pick_from == "test":
+            i = self.test_indexes[randint(0, len(self.test_indexes)-1)]
+        else:
+            i = randint(0, len(self.masks) - 1)
+        return i
 
-    def copy_and_paste(self, label, rotate, change_color):
+
+    def copy_and_paste(self, label, rotate, change_color, pick_from='all'):
         object_binary_masks = []
         background = self.get_random_background()
         d = [np.nan for i in range(len(self.inherited_tags))]
@@ -105,7 +123,7 @@ class DataAugmentation:
                 else:
                     angle = 0
                 x, y = self.get_random_position()
-                i = randint(0, len(self.masks) - 1)
+                i = self.get_random_object(pick_from)
                 try:
                     bb_new = self.masks[i].get_bb(background, x, y, angle, change_color=change_color)
                     if not self._check_overlap_2(bbs, bb_new, self.iou_tolerance):
@@ -190,7 +208,7 @@ class DataAugmentation:
         Path(data_dir).mkdir(exist_ok=True)
         for label in classes:
             for i in range(classes[label]):
-                img, df, bin_masks = self.copy_and_paste(label, rotate, change_color)
+                img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, data_dir_name)
                 img_id = "label_" + str(label) + "_" + "img_" + str(i)
                 img_name = img_id + ".jpg"
                 for j in range(len(bin_masks)):
