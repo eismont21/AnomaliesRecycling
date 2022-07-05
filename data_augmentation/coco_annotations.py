@@ -55,18 +55,28 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename):
             jpg_annotation = os.path.join(annotation_dir, annotation_name)
             annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
             annotation_image = cv2.bitwise_not(annotation_image)
-            rle = pycocotools.mask.encode(np.asfortranarray(annotation_image))
-            rle_dict = dict()
-            rle_dict["size"] = list(rle['size'])
-            rle_dict["counts"] = rle['counts'].decode("ascii")
-            area = pycocotools.mask.area(rle)
-            x, y, w, h = cv2.boundingRect(annotation_image)
+            #annotation_image.clip(max=1)
+            #rle = pycocotools.mask.encode(np.asfortranarray(annotation_image))
+            #rle_dict = dict()
+            #rle_dict["size"] = list(rle['size'])
+            #rle_dict["counts"] = rle['counts'].decode("utf-8")
+            #area = pycocotools.mask.area(rle)
+            #x, y, w, h = cv2.boundingRect(annotation_image)
+            cnt, hierachy = cv2.findContours(annotation_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours = sorted(cnt, key=cv2.contourArea, reverse=True)
+            contours = contours[0]
+            x, y, w, h = cv2.boundingRect(contours)
+            area = cv2.contourArea(contours)
+            poly = []
+            for pos in contours:
+                poly.append(float(pos[0][0]))
+                poly.append(float(pos[0][1]))
 
             annotation_info = {
                 'id': annotation_id,
                 'image_id': image_id,
                 'category_id': 1,
-                'segmentation': rle_dict,
+                'segmentation': [poly],
                 'area': int(area),
                 'bbox': [int(x), int(y), int(w), int(h)],
                 'bbox_mode': BoxMode.XYWH_ABS,
