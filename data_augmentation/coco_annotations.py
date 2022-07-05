@@ -57,8 +57,10 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename):
             annotation_image = cv2.bitwise_not(annotation_image)
             cnt, _ = cv2.findContours(annotation_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             contours = sorted(cnt, key=cv2.contourArea, reverse=True)
-            contour = contours[0]
-
+            try:
+                contour = contours[0]
+            except IndexError:
+                continue
             x, y = contour.T
             x = x.tolist()[0]
             y = y.tolist()[0]
