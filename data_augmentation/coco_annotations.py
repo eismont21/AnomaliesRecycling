@@ -93,6 +93,9 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename):
         image_id += 1
     json_string = json.dumps(coco_output, indent=4)
     json_path = os.path.join(root_dir, anno_filename + '.json')
+    if os.path.isfile(json_path):
+        print('hi')
+        os.remove(json_path)
     json_file = open(json_path, 'w')
     json_file.write(json_string)
     json_file.close()
