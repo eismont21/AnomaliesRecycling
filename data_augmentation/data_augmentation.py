@@ -258,10 +258,10 @@ class DataAugmentation:
         new_csv.to_csv(os.path.join(synthesized_dir, 'synthesized_' + data_dir_name + '.csv'), index=False)
         if coco_annotation:
             print('Create coco annotation:')
-            n = 0
+            n_annotations = 0
             for key, value in classes.items():
-                n += key * value
-            create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name, n)
+                n_annotations += key * value
+            create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name, n_annotations)
 
 
 
