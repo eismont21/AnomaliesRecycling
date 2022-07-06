@@ -130,6 +130,59 @@ class AugmentationImage:
         y_end = y_offset + binary_mask.shape[0]  # right down coord
         assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
         return {'x1': x_offset, 'x2': x_end, 'y1': y_offset, 'y2': y_end}
+    
+    def get_mask_dic(self, x, y, angle):
+        def get_offset(x, y, countur):
+            M = cv2.moments(countur)
+            x_c, y_c = int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])
+            return x - x_c, y - y_c
+        
+        countur = self.get_contour()
+        if angle != 0:
+            countur = self.rotate_contour(countur, angle)
+        
+        mask = cv2.drawContours(np.zeros((600, 800), np.uint8), [countur], -1, (255, 255, 255), 
+                                offset=get_offset(x, y, countur), thickness=-2, lineType=cv2.LINE_AA)
+        
+        mask_dic = {'size': cv2.countNonZero(mask), 
+                    'mask': mask, 
+                    'overlapped': 0.0}
+        return mask_dic            
+
+    def rotate_contour(self, cnt, angle):
+        def cart2pol(x, y):
+            theta = np.arctan2(y, x)
+            rho = np.hypot(x, y)
+            return theta, rho
+
+        def pol2cart(theta, rho):
+            x = rho * np.cos(theta)
+            y = rho * np.sin(theta)
+            return x, y
+        
+        M = cv2.moments(cnt)
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+
+        cnt_norm = cnt - [cx, cy]
+    
+        coordinates = cnt_norm[:, 0, :]
+        xs, ys = coordinates[:, 0], coordinates[:, 1]
+        thetas, rhos = cart2pol(xs, ys)
+    
+        thetas = np.rad2deg(thetas)
+        thetas = (thetas + angle) % 360
+        thetas = np.deg2rad(thetas)
+    
+        xs, ys = pol2cart(thetas, rhos)
+    
+        cnt_norm[:, 0, 0] = xs
+        cnt_norm[:, 0, 1] = ys
+
+        cnt_rotated = cnt_norm + [cx, cy]
+        cnt_rotated = cnt_rotated.astype(np.int32)
+
+        return cnt_rotated
 
 
 

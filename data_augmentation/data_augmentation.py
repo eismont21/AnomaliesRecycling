@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import cv2
 import os
+from tqdm import tqdm
 import seaborn as sns
 import matplotlib.pylab as plt
 from data_augmentation.augmentation_image import AugmentationImage
@@ -19,7 +20,7 @@ HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 
 
 class DataAugmentation:
-    def __init__(self, data_dir, zero_lid_dir, one_lid_dir):
+    def __init__(self, data_dir, zero_lid_dir, one_lid_dir, iou_tolerance=None):
         self.DATA_DIR = STORE_DIR + data_dir
         #self.DATA_DIR = data_dir
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
@@ -39,8 +40,11 @@ class DataAugmentation:
                                "dark color",
                                "open lid",
                                "synthesized"]
-        self.iou_tolerance = 0.9
-        self.iou_bound = 0.05
+        if iou_tolerance is None:
+            self.iou_tolerance = 0.8
+        else:
+            self.iou_tolerance = iou_tolerance
+        self.iou_bound = 0.01
         self.synthesize_dir = "synthesized"
 
     def split_randomly(self, n, p):
@@ -52,9 +56,8 @@ class DataAugmentation:
 
     def extract_masks(self):
         self.masks = []
-        for index, row in self.one_lids.iterrows():
-            if index % 100 == 0:
-                print('Generating and saving masks for image ' + str(index) + ' of ' + str(len(self.one_lids)))
+        print('Generating and saving masks for images')
+        for index, row in tqdm(self.one_lids.iterrows()):
             image_path = os.path.join(self.DATA_DIR, row['name'])
             img = cv2.imread(image_path)
             tags = self.one_lids.iloc[[index]]
@@ -103,7 +106,6 @@ class DataAugmentation:
             i = randint(0, len(self.masks) - 1)
         return i
 
-
     def copy_and_paste(self, label, rotate, change_color, pick_from='all'):
         object_binary_masks = []
         background = self.get_random_background()
@@ -125,11 +127,17 @@ class DataAugmentation:
                 x, y = self.get_random_position()
                 i = self.get_random_object(pick_from)
                 try:
-                    bb_new = self.masks[i].get_bb(background, x, y, angle, change_color=change_color)
-                    if not self._check_overlap_2(bbs, bb_new, self.iou_tolerance):
+                    #bb_new = self.masks[i].get_bb(background, x, y, angle, change_color=change_color)
+                    #if not self._check_overlap(bbs, bb_new, self.iou_tolerance):
+                    #    break
+                    #else:
+                    #    print("Overlapping! Generate new!")
+                    bb_new = self.masks[i].get_mask_dic(x, y, angle)
+                    flag, bbs_new = self._check_overlap_3(bbs, bb_new, self.iou_tolerance)
+                    if not(flag):
+                        bbs = bbs_new.copy()
+                        bbs.append(bb_new)
                         break
-                    else:
-                        print("Overlapping! Generate new!")
                 except AssertionError:
                     print('Overlapping! Generate new!')
             background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color)
@@ -139,9 +147,14 @@ class DataAugmentation:
                 new = cv2.bitwise_and(bin_xor, cv2.bitwise_not(object_binary_masks[k]))
                 object_binary_masks[k] = cv2.bitwise_not(new)
             object_binary_masks.append(binary_mask)
-            bbs.append(bb_new)
-            df.iloc[0]['overlapping'] = int(self._check_overlap_2(bbs, bb_new, self.iou_bound))
+            #bbs.append(bb_new)
+            #df.iloc[0]['overlapping'] = int(self._check_overlap(bbs, bb_new, self.iou_bound))
             self.combine_tags(df, self.masks[i].tags)
+            
+        for bb in bbs:
+            if bb['overlapped'] > self.iou_bound:
+                df.iloc[0]['overlapping'] = 1
+                break
 
         df.iloc[0]['count'] = label
         df.iloc[0]['synthesized'] = 1
@@ -150,6 +163,26 @@ class DataAugmentation:
         tags = ["count", "edge", "transparent", "inside", "overlapping", "dark color", "open lid", "synthesized"]
         df[tags] = df[tags].astype(int)
         return background, df, object_binary_masks
+    
+    def _check_overlap_3(self, bbs, bb_new, tol):
+        flag = False
+        bbs_new = []
+        for bb in bbs:
+            mask_dic_new = {}
+            mask_combined = cv2.bitwise_and(bb_new['mask'], bb['mask'])        
+            n_pixel_combined = cv2.countNonZero(mask_combined)            
+            if n_pixel_combined / bb['size'] + bb['overlapped'] < tol:
+                mask_dic_new['size'] = bb['size']
+                mask_dic_new['mask'] = cv2.bitwise_xor(bb['mask'], mask_combined)
+                mask_dic_new['overlapped'] = bb['overlapped'] + n_pixel_combined / bb['size']
+                bbs_new.append(mask_dic_new)
+            else:
+                flag = True
+                break
+        if flag:
+            return flag, bbs
+                
+        return flag, bbs_new
 
     def combine_tags(self, result, new):
         for tag in self.inherited_tags:
@@ -206,22 +239,29 @@ class DataAugmentation:
         Path(synthesized_dir).mkdir(exist_ok=True)
         Path(annotations_dir).mkdir(exist_ok=True)
         Path(data_dir).mkdir(exist_ok=True)
-        for label in classes:
-            for i in range(classes[label]):
-                img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, data_dir_name)
-                img_id = "label_" + str(label) + "_" + "img_" + str(i)
-                img_name = img_id + ".jpg"
-                for j in range(len(bin_masks)):
-                    bin_name = os.path.join(annotations_dir, img_id + '_' + 'lid' + '_' + str(j) + '.jpg')
-                    cv2.imwrite(bin_name, bin_masks[j])
-                name = os.path.join(data_dir, img_name)
-                df.at[0, 'name'] = name
-                new_csv = pd.concat([new_csv, df], ignore_index=True)
-                filename = os.path.join(self.DATA_DIR, name)
-                cv2.imwrite(filename, img)
+        print('Generate images:')
+        with tqdm(total=sum(classes.values())) as pbar:
+            for label in classes:
+                for i in range(classes[label]):
+                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, data_dir_name)
+                    img_id = "label_" + str(label) + "_" + "img_" + str(i)
+                    img_name = img_id + ".jpg"
+                    for j in range(len(bin_masks)):
+                        bin_name = os.path.join(annotations_dir, img_id + '_' + 'lid' + '_' + str(j) + '.jpg')
+                        cv2.imwrite(bin_name, bin_masks[j])
+                    name = os.path.join(data_dir, img_name)
+                    df.at[0, 'name'] = name
+                    new_csv = pd.concat([new_csv, df], ignore_index=True)
+                    filename = os.path.join(self.DATA_DIR, name)
+                    cv2.imwrite(filename, img)
+                    pbar.update(1)
         new_csv.to_csv(os.path.join(synthesized_dir, 'synthesized_' + data_dir_name + '.csv'), index=False)
         if coco_annotation:
-            create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name)
+            print('Create coco annotation:')
+            n = 0
+            for key, value in classes.items():
+                n += key * value
+            create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name, n)
 
 
 
