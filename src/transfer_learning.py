@@ -11,6 +11,9 @@ import time
 import os
 import copy
 import numpy as np
+import pandas as pd
+from datetime import datetime
+import json
 from torch.autograd import Variable
 from src.recycling_dataset import RecyclingDataset
 import warnings
@@ -31,46 +34,53 @@ class TransferLearningTrainer:
     """
     Class for training classification model with Transfer Learning
     """
-
-    MODELS_DIR = STORE_DIR + "models/"  # model save directory
-    TB_DIR = STORE_DIR + "runs/"  # tensorboard save directory
+    
     DATA_DIR = STORE_DIR + "data/"  # input data directory
 
-    def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4, sos=''):
-        self.sos = sos
+    def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4, sos='', save_results=False, config=None, synthetic=True):
+        self.sos = (sos, '')
+        self.synthetic = synthetic
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
-        if not data_transforms:
-            self.data_transforms = self._create_data_transforms_default()
+        self.save_results = save_results
+        self.result = {}
+        if self.save_results:
+            self._create_store_folder()
+            self.result.update(config)
+            with open(self.store_dir + 'config.json', 'w') as f:
+                json.dump(config, f)
+        else:
+            self.store_dir = STORE_DIR
+        if data_transforms is None:
+            self._create_data_transforms_default()
         else:
             self.data_transforms = data_transforms
         self._create_recycling_image_datasets()
         self._create_dataloaders()
 
-    @staticmethod
     def _create_data_transforms_default(self):
         """
         Create default data transformation if no given in constructor
-        :param self:
         :return:
         """
-
         # Data augmentation and normalization for training
         # Just normalization for validation
         data_transforms = {
             'train': transforms.Compose([
-                transforms.Resize(256),
+                transforms.ToPILImage(),
+                transforms.Resize((256, 256)),
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ]),
             'test': transforms.Compose([
-                transforms.Resize(256),
+                transforms.ToPILImage(),
+                transforms.Resize((256, 256)),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])}
-        return data_transforms
+        self.data_transforms = data_transforms
 
     def _create_image_datasets(self):
         """
@@ -83,10 +93,12 @@ class TransferLearningTrainer:
         self.class_names = self.image_datasets['train'].classes
 
     def _create_recycling_image_datasets(self):
-        self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", self.sos, x + ".csv"),
-                                                   os.path.join(STORE_DIR, "data"),
-                                                   self.data_transforms[x])
-                               for x in ['train', 'test']}
+        self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", self.sos[i], x + ".csv"),
+                                                   self.DATA_DIR,
+                                                   self.data_transforms[x],
+                                                   sos=self.sos[0],
+                                                   synthetic=self.synthetic)
+                               for i, x in enumerate(['train', 'test'])}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_dataloaders(self):
@@ -104,14 +116,25 @@ class TransferLearningTrainer:
         samplers = [sampler, None]
         self.dataloaders = {x: torch.utils.data.DataLoader(self.image_datasets[x],
                                                            #sampler=samplers[i],
-                                                           batch_sampler=StratifiedBatchSampler(self.image_datasets[x].img_labels['count'],
-                                                                                                batch_size=self.batch_size,
-                                                                                                shuffle=self.shuffle),
-                                                           #batch_size=self.batch_size,
-                                                           #shuffle=self.shuffle,
+                                                           #batch_sampler=StratifiedBatchSampler(self.image_datasets[x].img_labels['count'],
+#                                                                                                batch_size=self.batch_size,
+#                                                                                                shuffle=self.shuffle),
+                                                           batch_size=self.batch_size,
+                                                           shuffle=self.shuffle,
                                                            num_workers=self.num_workers)
                             for i, x in enumerate(['train', 'test'])}
 
+    def _create_store_folder(self):
+        time = datetime.now()
+        folder_name = time.strftime('%Y-%m-%d_%H-%M-%S/')
+        self.result['timestamp'] = time
+        path = STORE_DIR + 'experiments/' + folder_name
+        os.makedirs(path)
+        os.makedirs(path + 'model')
+        os.makedirs(path + 'images')
+        os.makedirs(path + 'results')
+        self.store_dir = path
+    
     def train_model(self, model, criterion, optimizer, scheduler, num_epochs=12, model_name=None, early_stop=True):
         """
         Start model training
@@ -129,7 +152,7 @@ class TransferLearningTrainer:
             patience = scheduler.step_size + 1
             last_loss = 100
 
-        writer = SummaryWriter(self.TB_DIR + model_name)
+        writer = SummaryWriter(self.store_dir + 'tensorboard')
 
         model.to(DEVICE)
 
@@ -271,12 +294,18 @@ class TransferLearningTrainer:
         
         self.metrics = {'acc': best_acc.item(), 're_acc': best_re_acc.item(), 'mae': best_mae.item(),
                         'mse': best_mse.item(), 'r^2': best_r2.item()}
+        
+        self.result.update(self.metrics)
+        
+        if self.save_results:
+            df_metrics = pd.DataFrame(self.metrics, index=[0])
+            df_metrics.to_csv(self.store_dir + 'results/metrics.csv', index=False)
 
         # load best model weights        
         model.load_state_dict(best_model_wts)
-        path = self.MODELS_DIR + model_name + "_weights.pth"
+        path = self.store_dir + 'model/' + model_name + "_weights.pth"
         torch.save(model.state_dict(), path)
-        path = self.MODELS_DIR + model_name + "_model.pth"
+        path = self.store_dir + 'model/' + model_name + "_model.pth"
         torch.save(model, path)
         writer.close()
         return model
@@ -359,9 +388,21 @@ class TransferLearningTrainer:
                         ax.imshow(inp)
                         ax.axis('off')
                         plt.pause(0.001)
-                    else:
+                    elif not self.save_results:
                         print(title)
-        return images
+
+        self.misclassified_images = images
+        
+        if self.save_results:
+            names, counts, preds = [], [], []
+            for image, (label, pred) in images.items():
+                names.append(image)
+                counts.append(label)
+                preds.append(pred)
+    
+            df_images = pd.DataFrame({'name': names, 'count': counts, 'pred': preds})
+            df_images.to_csv(self.store_dir + 'results/misclassified_images.csv', index=False)
+        
 
     def print_confusion_matrix(self, model_ft):
         """
@@ -415,7 +456,20 @@ class TransferLearningTrainer:
         ax.xaxis.set_label_position('top')
         plt.xticks(rotation=90)
         plt.plot()
-        # plt.savefig('output.png')
+        if self.save_results:
+            plt.savefig(self.store_dir + 'images/' + 'confusion_matrix.png')
+            plt.close('all')
+            plt.clf()
+            plt.show()
+            
+            confusion_diagonal = {}
+            for i, x in enumerate(self.confusion_diagonal):
+                confusion_diagonal[i] = x
+                self.result[str(i)] = x
+            df_confusion_diagonal = pd.DataFrame(confusion_diagonal, index=[0])
+            df_confusion_diagonal.to_csv(self.store_dir + 'results/confusion_diagonal.csv', index=False)
+        else:
+            plt.show()
 
     def print_missclassified_batches(self, model_ft):
         """
@@ -438,3 +492,9 @@ class TransferLearningTrainer:
                     if labels[j] != preds[j]:
                         print(self.dataloaders['test'].dataset.samples[i * batch_size + j][0])
                         print(f'must be {labels[j]}, but predicted {self.class_names[preds[j]]}')
+                        
+    def update_results(self):
+        df_results = pd.read_csv(HOME_DIR + "data/results.csv")
+        df_results = pd.concat([df_results, pd.DataFrame.from_records([self.result])], ignore_index=True)
+        df_results.to_csv(HOME_DIR + "data/results.csv", index=False)
+        

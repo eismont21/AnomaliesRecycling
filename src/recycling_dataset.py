@@ -4,19 +4,17 @@ from torchvision.io import read_image, ImageReadMode
 from torch.utils.data import Dataset
 import torch
 
-# git fix
 class RecyclingDataset(Dataset):
     """
     Custom class for custom dataset
     """
-    def __init__(self, csv_file, img_dir, transform=None):
-        #if 'train' in csv_file:
-        #    df = pd.read_csv(csv_file)
-        #    df = df[~df['name'].str.contains("harder")]
-        #    self.img_labels = df
-        #else:
-        #    self.img_labels = pd.read_csv(csv_file)
-        self.img_labels = pd.read_csv(csv_file)
+    def __init__(self, csv_file, img_dir, transform=None, sos='', synthetic=True):
+        df = pd.read_csv(csv_file)
+        if 'test' in csv_file and sos != '':
+            df['count'] = df['count'].apply(lambda x: 4 if x == 5 else x)
+        if 'train' in csv_file and not synthetic:
+            df = df[~df['name'].str.contains("synthesized")]
+        self.img_labels = df
         self.img_dir = img_dir
         self.transform = transform
         self.classes = self.img_labels['count'].unique()
