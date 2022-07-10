@@ -46,6 +46,7 @@ class DataAugmentation:
             self.iou_tolerance = iou_tolerance
         self.iou_bound = 0.01
         self.edge_case_probability = 0.05
+        self.dark_case_probability = 0.25
         self.synthesize_dir = "synthesized"
 
     def split_randomly(self, n, p):
@@ -109,7 +110,7 @@ class DataAugmentation:
             i = randint(0, len(self.masks) - 1)
         return i
 
-    def copy_and_paste(self, label, rotate, change_color, pick_from='all'):
+    def copy_and_paste(self, label, rotate, change_color, make_dark, pick_from='all'):
         object_binary_masks = []
         background = self.get_random_background()
         d = [np.nan for i in range(len(self.inherited_tags))]
@@ -123,6 +124,9 @@ class DataAugmentation:
         bbs = []
         for j in range(label):
             while True:
+                flag_dark = False
+                if make_dark:
+                    flag_dark = random.random() < self.dark_case_probability
                 angle = 0
                 if rotate:
                     angle = randint(0, 360)
@@ -138,7 +142,7 @@ class DataAugmentation:
                     bbs = bbs_new.copy()
                     bbs.append(bb_new)
                     break
-            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color)
+            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color, flag_dark)
             for k in range(len(object_binary_masks)):
                 bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
                 mask_inv = np.zeros((600, 800), np.uint8)
@@ -147,6 +151,8 @@ class DataAugmentation:
             object_binary_masks.append(binary_mask)
             if flag_edge:
                 df.iloc[0]['edge'] = 1
+            if flag_dark:
+                df.iloc[0]['dark color'] = 1
             self.combine_tags(df, self.masks[i].tags)
             
         for bb in bbs:
@@ -231,7 +237,7 @@ class DataAugmentation:
                 return True
         return False
 
-    def generate(self, classes, rotate=True, change_color=False, coco_annotation=True, data_dir_name='data'):
+    def generate(self, classes, rotate=True, change_color=False, make_dark=False, coco_annotation=True, data_dir_name='data'):
         new_csv = pd.DataFrame()
         synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
         annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
@@ -243,7 +249,7 @@ class DataAugmentation:
         with tqdm(total=sum(classes.values()), ncols=100) as pbar:
             for label in classes:
                 for i in range(classes[label]):
-                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, data_dir_name)
+                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, make_dark, data_dir_name)
                     img_id = "label_" + str(label) + "_" + "img_" + str(i)
                     img_name = img_id + ".jpg"
                     for j in range(len(bin_masks)):

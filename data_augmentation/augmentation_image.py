@@ -3,6 +3,7 @@ import numpy as np
 from scipy.spatial import distance
 from random import randint
 import imutils
+import random
 
 
 class AugmentationImage:
@@ -70,10 +71,12 @@ class AugmentationImage:
             self.calculate_object_mask()
         return self.object_mask
 
-    def copy_and_paste(self, background, x_center, y_center, angle, change_color):
+    def copy_and_paste(self, background, x_center, y_center, angle, change_color, make_dark):
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
         # crop this BB to get only the lid
         binary_mask, fg = self.get_rotated_object(x, y, w, h, angle, change_color)
+        if make_dark:
+            fg = self.reduce_brightness(fg)
         h, w = binary_mask.shape[0], binary_mask.shape[1]
         x_new_left_up = int(x_center - (w / 2))
         y_new_left_up = int(y_center - (h / 2))
@@ -200,6 +203,20 @@ class AugmentationImage:
         cnt_rotated = cnt_rotated.astype(np.int32)
 
         return cnt_rotated
+    
+    def reduce_brightness(self, img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(hsv)
+        max_brightness = random.randint(8, 30)
+        value = int(max_brightness - np.max(v))
+        v = cv2.add(v, value)
+        v[v > 255] = 255
+        v[v < 0] = 0
+        final_hsv = cv2.merge((h, s, v))
+        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR) 
+        img = cv2.blur(img, (9,9))
+        
+        return img
 
 
 
