@@ -42,7 +42,7 @@ coco_output = {
 def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annotations):
     image_id = 0
     annotation_id = 0
-    with tqdm(total=n_annotations) as pbar:
+    with tqdm(total=n_annotations, ncols=100) as pbar:
         for filename in [file for file in os.listdir(image_dir) if file.endswith('.jpg')]:
             jpg_image = os.path.join(image_dir, filename)
             image_name = os.path.splitext(filename)[0]

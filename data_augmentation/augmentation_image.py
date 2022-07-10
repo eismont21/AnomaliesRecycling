@@ -75,21 +75,35 @@ class AugmentationImage:
         # crop this BB to get only the lid
         binary_mask, fg = self.get_rotated_object(x, y, w, h, angle, change_color)
         h, w = binary_mask.shape[0], binary_mask.shape[1]
-        x_offset = int(x_center - (w / 2))  # left up coord
-        y_offset = int(y_center - (h / 2))  # left up coord
-        #assert x_offset > 0 and y_offset > 0, "negative coordinates"
-        x_end = x_offset + binary_mask.shape[1]  # right down coord
-        y_end = y_offset + binary_mask.shape[0]  # right down coord
-        #assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
-        roi = background[y_offset: y_offset + h, x_offset:x_offset + w]
+        x_new_left_up = int(x_center - (w / 2))
+        y_new_left_up = int(y_center - (h / 2))
+        x_new_right_down = x_new_left_up + w
+        y_new_right_down = y_new_left_up + h
+        x_binary_mask_left_up, y_binary_mask_left_up = 0, 0
+        x_binary_mask_right_down, y_binary_mask_right_down = w, h
+        if x_new_left_up < 0:
+            x_binary_mask_left_up = abs(x_new_left_up)
+            x_new_left_up = 0
+        if x_new_right_down > 800:
+            x_binary_mask_right_down -= x_new_right_down - 800
+            x_new_right_down = 800
+        if y_new_left_up < 0:
+            y_binary_mask_left_up = abs(y_new_left_up)
+            y_new_left_up = 0
+        if y_new_right_down > 600:
+            y_binary_mask_right_down -= y_new_right_down - 600
+            y_new_right_down = 600  
+        roi = background[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down]
+        binary_mask = binary_mask[y_binary_mask_left_up:y_binary_mask_right_down, x_binary_mask_left_up:x_binary_mask_right_down]
+        fg = fg[y_binary_mask_left_up:y_binary_mask_right_down, x_binary_mask_left_up:x_binary_mask_right_down]
         # tutorial start
         # small_img is cropped_object, large_img is background
         bg = cv2.bitwise_or(roi, roi, mask=binary_mask)
         final_roi = cv2.add(bg, fg)
         cropped_object = final_roi
-        background[y_offset: y_offset + h, x_offset: x_offset + w] = cropped_object
+        background[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down] = cropped_object
         bin_mask = cv2.bitwise_not(np.zeros((600, 800), np.uint8))
-        bin_mask[y_offset: y_offset + h, x_offset: x_offset + w] = binary_mask
+        bin_mask[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down] = binary_mask
 
         return background, bin_mask
 
@@ -140,13 +154,16 @@ class AugmentationImage:
         countur = self.get_contour()
         if angle != 0:
             countur = self.rotate_contour(countur, angle)
+            
+        mask_original = cv2.drawContours(np.zeros((600, 800), np.uint8), [countur], -1, (255, 255, 255), thickness=-2,
+                                         lineType=cv2.LINE_AA)
         
         mask = cv2.drawContours(np.zeros((600, 800), np.uint8), [countur], -1, (255, 255, 255), 
                                 offset=get_offset(x, y, countur), thickness=-2, lineType=cv2.LINE_AA)
         
         mask_dic = {'size': cv2.countNonZero(mask), 
                     'mask': mask, 
-                    'overlapped': 0.0}
+                    'overlapped': 1.0 - cv2.countNonZero(mask)/cv2.countNonZero(mask_original)}
         return mask_dic            
 
     def rotate_contour(self, cnt, angle):

@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 from tqdm import tqdm
+import random
 import seaborn as sns
 import matplotlib.pylab as plt
 from data_augmentation.augmentation_image import AugmentationImage
@@ -40,11 +41,11 @@ class DataAugmentation:
                                "dark color",
                                "open lid",
                                "synthesized"]
-        if iou_tolerance is None:
-            self.iou_tolerance = 0.8
-        else:
+        self.iou_tolerance = 0.8
+        if iou_tolerance is not None:
             self.iou_tolerance = iou_tolerance
         self.iou_bound = 0.01
+        self.edge_case_probability = 0.05
         self.synthesize_dir = "synthesized"
 
     def split_randomly(self, n, p):
@@ -57,15 +58,17 @@ class DataAugmentation:
     def extract_masks(self):
         self.masks = []
         print('Generating and saving masks for images')
-        for index, row in tqdm(self.one_lids.iterrows()):
-            image_path = os.path.join(self.DATA_DIR, row['name'])
-            img = cv2.imread(image_path)
-            tags = self.one_lids.iloc[[index]]
-            augm_img = AugmentationImage(img, tags)
-            augm_img.calculate_contour()
-            augm_img.calculate_binary_mask()
-            augm_img.calculate_object_mask()
-            self.masks.append(augm_img)
+        with tqdm(total=len(self.one_lids), ncols=100) as pbar:
+            for index, row in self.one_lids.iterrows():
+                image_path = os.path.join(self.DATA_DIR, row['name'])
+                img = cv2.imread(image_path)
+                tags = self.one_lids.iloc[[index]]
+                augm_img = AugmentationImage(img, tags)
+                augm_img.calculate_contour()
+                augm_img.calculate_binary_mask()
+                augm_img.calculate_object_mask()
+                self.masks.append(augm_img)
+                pbar.update(1)
         return self.masks
 
     def get_sum_binary_mask(self, show=True):
@@ -120,26 +123,21 @@ class DataAugmentation:
         bbs = []
         for j in range(label):
             while True:
+                angle = 0
                 if rotate:
                     angle = randint(0, 360)
+                flag_edge = random.random() < self.edge_case_probability
+                if flag_edge:
+                    x, y = random.randint(-20, 820), random.choice(list(range(-20, 10)) + list(range(590, 620)))
                 else:
-                    angle = 0
-                x, y = self.get_random_position()
+                    x, y = self.get_random_position()
                 i = self.get_random_object(pick_from)
-                try:
-                    #bb_new = self.masks[i].get_bb(background, x, y, angle, change_color=change_color)
-                    #if not self._check_overlap(bbs, bb_new, self.iou_tolerance):
-                    #    break
-                    #else:
-                    #    print("Overlapping! Generate new!")
-                    bb_new = self.masks[i].get_mask_dic(x, y, angle)
-                    flag, bbs_new = self._check_overlap_3(bbs, bb_new, self.iou_tolerance)
-                    if not(flag):
-                        bbs = bbs_new.copy()
-                        bbs.append(bb_new)
-                        break
-                except AssertionError:
-                    print('Overlapping! Generate new!')
+                bb_new = self.masks[i].get_mask_dic(x, y, angle)
+                flag, bbs_new = self._check_overlap_3(bbs, bb_new, self.iou_tolerance)
+                if not(flag):
+                    bbs = bbs_new.copy()
+                    bbs.append(bb_new)
+                    break
             background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color)
             for k in range(len(object_binary_masks)):
                 bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
@@ -147,8 +145,8 @@ class DataAugmentation:
                 new = cv2.bitwise_and(bin_xor, cv2.bitwise_not(object_binary_masks[k]))
                 object_binary_masks[k] = cv2.bitwise_not(new)
             object_binary_masks.append(binary_mask)
-            #bbs.append(bb_new)
-            #df.iloc[0]['overlapping'] = int(self._check_overlap(bbs, bb_new, self.iou_bound))
+            if flag_edge:
+                df.iloc[0]['edge'] = 1
             self.combine_tags(df, self.masks[i].tags)
             
         for bb in bbs:
@@ -167,6 +165,8 @@ class DataAugmentation:
     def _check_overlap_3(self, bbs, bb_new, tol):
         flag = False
         bbs_new = []
+        if bb_new['overlapped'] > tol:
+            return True, bbs_new
         for bb in bbs:
             mask_dic_new = {}
             mask_combined = cv2.bitwise_and(bb_new['mask'], bb['mask'])        
@@ -240,7 +240,7 @@ class DataAugmentation:
         Path(annotations_dir).mkdir(exist_ok=True)
         Path(data_dir).mkdir(exist_ok=True)
         print('Generate images:')
-        with tqdm(total=sum(classes.values())) as pbar:
+        with tqdm(total=sum(classes.values()), ncols=100) as pbar:
             for label in classes:
                 for i in range(classes[label]):
                     img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, data_dir_name)
