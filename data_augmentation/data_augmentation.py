@@ -2,28 +2,31 @@ import pandas as pd
 import numpy as np
 import cv2
 import os
+from tqdm import tqdm
+import random
 import seaborn as sns
 import matplotlib.pylab as plt
-from augmentation_image import AugmentationImage
-from random import randint
+from data_augmentation.augmentation_image import AugmentationImage
+from random import randint, shuffle
 from skimage.util import random_noise
 from pathlib import Path
-import imutils
+from data_augmentation.coco_annotations import create_coco_json
 
-#STORE_DIR = "/cvhci/temp/p22g5/"
-#HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
+STORE_DIR = "/cvhci/temp/p22g5/"
+HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 #STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE/"
 #HOME_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/"
-STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
-HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
+#STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
+#HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
 
 
 class DataAugmentation:
-    def __init__(self, data_dir, zero_lid_dir, one_lid_dir):
-        #self.DATA_DIR = STORE_DIR + data_dir
-        self.DATA_DIR = data_dir
+    def __init__(self, data_dir, zero_lid_dir, one_lid_dir, iou_tolerance=None):
+        self.DATA_DIR = STORE_DIR + data_dir
+        #self.DATA_DIR = data_dir
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
+        self.split_randomly(n=len(self.one_lids), p=0.2)
         self.STANDARD_RESOLUTION = (600, 800)
         self.masks = None
         self.percentile_binary_mask = None
@@ -38,23 +41,35 @@ class DataAugmentation:
                                "dark color",
                                "open lid",
                                "synthesized"]
-        self.iou_tolerance = 0.9
-        self.iou_bound = 0.05
+        self.iou_tolerance = 0.8
+        if iou_tolerance is not None:
+            self.iou_tolerance = iou_tolerance
+        self.iou_bound = 0.01
+        self.edge_case_probability = 0.05
+        self.dark_case_probability = 0.25
         self.synthesize_dir = "synthesized"
+
+    def split_randomly(self, n, p):
+        indexes = list(range(0, n))
+        shuffle(indexes)
+        last = int(n * (1 - p))
+        self.train_indexes = indexes[:last]
+        self.test_indexes = indexes[last:]
 
     def extract_masks(self):
         self.masks = []
-        for index, row in self.one_lids.iterrows():
-            if index % 100 == 0:
-                print('Generating and saving masks for image ' + str(index) + ' of ' + str(len(self.one_lids)))
-            image_path = os.path.join(self.DATA_DIR, row['name'])
-            img = cv2.imread(image_path)
-            tags = self.one_lids.iloc[[index]]
-            augm_img = AugmentationImage(img, tags)
-            augm_img.calculate_contour()
-            augm_img.calculate_binary_mask()
-            augm_img.calculate_object_mask()
-            self.masks.append(augm_img)
+        print('Generating and saving masks for images')
+        with tqdm(total=len(self.one_lids), ncols=100) as pbar:
+            for index, row in self.one_lids.iterrows():
+                image_path = os.path.join(self.DATA_DIR, row['name'])
+                img = cv2.imread(image_path)
+                tags = self.one_lids.iloc[[index]]
+                augm_img = AugmentationImage(img, tags)
+                augm_img.calculate_contour()
+                augm_img.calculate_binary_mask()
+                augm_img.calculate_object_mask()
+                self.masks.append(augm_img)
+                pbar.update(1)
         return self.masks
 
     def get_sum_binary_mask(self, show=True):
@@ -85,8 +100,18 @@ class DataAugmentation:
         empty_tray_path = os.path.join(self.DATA_DIR, empty_tray_name)
         empty_tray = cv2.imread(empty_tray_path)
         return empty_tray
+    
+    def get_random_object(self, pick_from="all"):
+        if pick_from == "train":
+            i = self.train_indexes[randint(0, len(self.train_indexes)-1)]
+        elif pick_from == "test":
+            i = self.test_indexes[randint(0, len(self.test_indexes)-1)]
+        else:
+            i = randint(0, len(self.masks) - 1)
+        return i
 
-    def copy_and_paste(self, label):
+    def copy_and_paste(self, label, rotate, change_color, make_dark, pick_from='all'):
+        object_binary_masks = []
         background = self.get_random_background()
         d = [np.nan for i in range(len(self.inherited_tags))]
         df = pd.DataFrame([d], columns=self.inherited_tags)
@@ -94,21 +119,46 @@ class DataAugmentation:
         name = os.path.join(self.synthesize_dir, img_name)
         if label == 0:
             return self.get_noise_img(background), \
-                   pd.DataFrame([[name, 0, 0, np.nan, np.nan, 0, 0, 0, 0, 0, 1]], columns=self.inherited_tags)
+                   pd.DataFrame([[name, 0, 0, np.nan, np.nan, 0, 0, 0, 0, 0, 1]], columns=self.inherited_tags), \
+                   object_binary_masks
         bbs = []
         for j in range(label):
-            while(True):
-                x, y = self.get_random_position()
-                i = randint(0, len(self.masks) - 1)
-                bb_new = self.masks[i].get_bb(background, x, y)
-                if not self._check_overlap_2(bbs, bb_new, self.iou_tolerance):
-                    break
+            while True:
+                flag_dark = False
+                if make_dark:
+                    flag_dark = random.random() < self.dark_case_probability
+                angle = 0
+                if rotate:
+                    angle = randint(0, 360)
+                flag_edge = random.random() < self.edge_case_probability
+                if flag_edge:
+                    x, y = random.randint(-20, 820), random.choice(list(range(-20, 10)) + list(range(590, 620)))
                 else:
-                    print("Overlapping! Generate new!")
-            background = self.masks[i].copy_and_paste(background, x, y)
-            bbs.append(bb_new)
-            df.iloc[0]['overlapping'] = int(self._check_overlap_2(bbs, bb_new, self.iou_bound))
+                    x, y = self.get_random_position()
+                i = self.get_random_object(pick_from)
+                bb_new = self.masks[i].get_mask_dic(x, y, angle)
+                flag, bbs_new = self._check_overlap_3(bbs, bb_new, self.iou_tolerance)
+                if not(flag):
+                    bbs = bbs_new.copy()
+                    bbs.append(bb_new)
+                    break
+            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color, flag_dark)
+            for k in range(len(object_binary_masks)):
+                bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
+                mask_inv = np.zeros((600, 800), np.uint8)
+                new = cv2.bitwise_and(bin_xor, cv2.bitwise_not(object_binary_masks[k]))
+                object_binary_masks[k] = cv2.bitwise_not(new)
+            object_binary_masks.append(binary_mask)
+            if flag_edge:
+                df.iloc[0]['edge'] = 1
+            if flag_dark:
+                df.iloc[0]['dark color'] = 1
             self.combine_tags(df, self.masks[i].tags)
+            
+        for bb in bbs:
+            if bb['overlapped'] > self.iou_bound:
+                df.iloc[0]['overlapping'] = 1
+                break
 
         df.iloc[0]['count'] = label
         df.iloc[0]['synthesized'] = 1
@@ -116,7 +166,29 @@ class DataAugmentation:
         df.at[0, 'name'] = str(name)
         tags = ["count", "edge", "transparent", "inside", "overlapping", "dark color", "open lid", "synthesized"]
         df[tags] = df[tags].astype(int)
-        return background, df
+        return background, df, object_binary_masks
+    
+    def _check_overlap_3(self, bbs, bb_new, tol):
+        flag = False
+        bbs_new = []
+        if bb_new['overlapped'] > tol:
+            return True, bbs_new
+        for bb in bbs:
+            mask_dic_new = {}
+            mask_combined = cv2.bitwise_and(bb_new['mask'], bb['mask'])        
+            n_pixel_combined = cv2.countNonZero(mask_combined)            
+            if n_pixel_combined / bb['size'] + bb['overlapped'] < tol:
+                mask_dic_new['size'] = bb['size']
+                mask_dic_new['mask'] = cv2.bitwise_xor(bb['mask'], mask_combined)
+                mask_dic_new['overlapped'] = bb['overlapped'] + n_pixel_combined / bb['size']
+                bbs_new.append(mask_dic_new)
+            else:
+                flag = True
+                break
+        if flag:
+            return flag, bbs
+                
+        return flag, bbs_new
 
     def combine_tags(self, result, new):
         for tag in self.inherited_tags:
@@ -128,9 +200,9 @@ class DataAugmentation:
 
     def get_mask_from_bb(self, bb):
         a = np.zeros(self.STANDARD_RESOLUTION, dtype=int)
-        for x in range(bb['x1'], bb['x2'] + 1):
-            for y in range(bb['y1'], bb['y2'] + 1):
-                a[x, y] = 1
+        for x in range(bb['x1'], bb['x2']):
+            for y in range(bb['y1'], bb['y2']):
+                a[y, x] = 1
         return a
 
     def get_joined_mask(self, masks):
@@ -165,21 +237,39 @@ class DataAugmentation:
                 return True
         return False
 
-    def generate(self, classes):
+    def generate(self, classes, rotate=True, change_color=False, make_dark=False, coco_annotation=True, data_dir_name='data'):
         new_csv = pd.DataFrame()
-        Path(os.path.join(self.DATA_DIR, self.synthesize_dir)).mkdir(exist_ok=True)
-        for label in classes:
-            for i in range(classes[label]):
-                img, df = self.copy_and_paste(label)
-                img_name = "label_" + str(label) + "_" + "img_" + str(i) + ".jpg"
-                name = os.path.join(self.synthesize_dir, img_name)
-                df.at[0, 'name'] = name
-                new_csv = pd.concat([new_csv, df], ignore_index=True)
-                filename = os.path.join(self.DATA_DIR, name)
-                cv2.imwrite(filename, img)
-        output_csv = HOME_DIR + 'data/labels/synthesized/'
-        Path(output_csv).mkdir(exist_ok=True)
-        new_csv.to_csv(output_csv + 'synthesized.csv', index=False)
+        synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
+        annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
+        data_dir = os.path.join(synthesized_dir, data_dir_name)
+        Path(synthesized_dir).mkdir(exist_ok=True)
+        Path(annotations_dir).mkdir(exist_ok=True)
+        Path(data_dir).mkdir(exist_ok=True)
+        print('Generate images:')
+        with tqdm(total=sum(classes.values()), ncols=100) as pbar:
+            for label in classes:
+                for i in range(classes[label]):
+                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, make_dark, data_dir_name)
+                    img_id = "label_" + str(label) + "_" + "img_" + str(i)
+                    img_name = img_id + ".jpg"
+                    for j in range(len(bin_masks)):
+                        bin_name = os.path.join(annotations_dir, img_id + '_' + 'lid' + '_' + str(j) + '.jpg')
+                        cv2.imwrite(bin_name, bin_masks[j])
+                    name = os.path.join(data_dir, img_name)
+                    df.at[0, 'name'] = name
+                    new_csv = pd.concat([new_csv, df], ignore_index=True)
+                    filename = os.path.join(self.DATA_DIR, name)
+                    cv2.imwrite(filename, img)
+                    pbar.update(1)
+        new_csv.to_csv(os.path.join(synthesized_dir, 'synthesized_' + data_dir_name + '.csv'), index=False)
+        if coco_annotation:
+            print('Create coco annotation:')
+            n_annotations = 0
+            for key, value in classes.items():
+                n_annotations += key * value
+            create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name, n_annotations)
+
+
 
     @staticmethod
     def get_noise_img(img, mode='gaussian'):

@@ -10,7 +10,7 @@ class PolysecureTrainer(DefaultTrainer):
     @classmethod
     def build_evaluator(cls, cfg, dataset_name):
         output_dir = os.path.join(cfg.OUTPUT_DIR, "inference")
-        evaluators = [COCOEvaluator(dataset_name, cfg, False, output_dir)]
+        evaluators = [COCOEvaluator(dataset_name, ("segm",), False, output_dir)]
         return DatasetEvaluators(evaluators)
 
     @classmethod
@@ -23,6 +23,7 @@ class PolysecureTrainer(DefaultTrainer):
             bias_lr_factor=cfg.SOLVER.BIAS_LR_FACTOR,
             weight_decay_bias=cfg.SOLVER.WEIGHT_DECAY_BIAS,
         )
-        optimizer = torch.optim.Adam(params, cfg.SOLVER.BASE_LR)
+        #optimizer = torch.optim.Adam(params, cfg.SOLVER.BASE_LR)
+        optimizer = torch.optim.SGD(params, cfg.SOLVER.BASE_LR, momentum=cfg.SOLVER.MOMENTUM) 
         # optimizer = torch.optim.AdamW(params, cfg.SOLVER.BASE_LR)
         return maybe_add_gradient_clipping(cfg, optimizer)
