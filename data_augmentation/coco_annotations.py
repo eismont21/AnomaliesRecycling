@@ -53,7 +53,7 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 'height': 600
             }
             coco_output['images'].append(image_info)
-            for annotation_name in [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name in annotation]:
+            for annotation_name in [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name == annotation.split('_lid')[0]]:
                 jpg_annotation = os.path.join(annotation_dir, annotation_name)
                 annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
                 annotation_image = cv2.bitwise_not(annotation_image)
