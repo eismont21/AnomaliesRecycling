@@ -2,6 +2,7 @@
 This script is based on the training script in detectron2/tools.
 """
 ROOT_DIR = "/home/p22g5/AnomaliesRecycling/"
+STORE_DIR = "/cvhci/temp/p22g5/"
 IM_ROOT_DIR = "/cvhci/temp/p22g5/data/synthesized/"
 import torch
 from datetime import datetime
@@ -41,12 +42,18 @@ def setup(args):
     register_coco_instances(DATASET_TRAIN_NAME, {}, TRAIN_ANNO, TRAIN_IMAGES)
     register_coco_instances(DATASET_TEST_NAME, {}, TEST_ANNO, TEST_IMAGES)
     add_standard_config(cfg)
-    os.makedirs(ROOT_DIR + cfg.OUTPUT_DIR, exist_ok=True)
+    time = datetime.now()
+    folder_name = time.strftime('%Y-%m-%d_%H-%M-%S/')
+    cfg.OUTPUT_DIR = os.path.join(STORE_DIR, "segmentation_experiments", folder_name)
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
     return cfg
 
 
 def do_train(args, cfg, trainer):
     trainer.resume_or_load(resume=False)
+    #time = datetime.now()
+    #folder_name = time.strftime('%Y-%m-%d_%H-%M-%S/')
+    #cfg.OUTPUT_DIR = os.path.join(STORE_DIR, "segmentation_experiments", folder_name)
     print("do_train")
     print("model weights: " + cfg.MODEL.WEIGHTS)
     print("output directory: " + cfg.OUTPUT_DIR)
@@ -64,14 +71,16 @@ def do_test2(args, cfg):
     print("do_test2")
     print("model weights: " + cfg.MODEL.WEIGHTS)
     print("output directory: " + cfg.OUTPUT_DIR)
-    DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).load(cfg.MODEL.WEIGHTS)
+    #DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).load(cfg.MODEL.WEIGHTS)
+    
+    DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).load(ROOT_DIR + "output_segmentation/maskrcnn/model_final.pth")
     res = PolysecureTrainer.test(cfg, model)
     return res
 
 
 def add_standard_config(cfg):
     cfg.merge_from_file(RETINANET_CONFIG)
-    cfg.OUTPUT_DIR = ROOT_DIR + "output_segmentation/maskrcnn/"
+    #cfg.OUTPUT_DIR = ROOT_DIR + "output_segmentation/maskrcnn/"
     cfg.INPUT.MASK_FORMAT = 'bitmask'
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 

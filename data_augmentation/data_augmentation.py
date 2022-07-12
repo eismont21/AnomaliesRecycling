@@ -19,6 +19,7 @@ HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 #STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
 #HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
 
+TEST_INDEXES = [920, 574, 33, 372, 471, 344, 272, 322, 1069, 693, 621, 1025, 541, 780, 861, 194, 167, 990, 642, 585, 552, 1000, 155, 571, 230, 303, 681, 7, 149, 1, 400, 650, 59, 834, 798, 938, 649, 795, 604, 755, 699, 284, 212, 97, 919, 712, 119, 695, 355, 1028, 378, 1049, 198, 684, 1060, 772, 548, 639, 555, 1035, 380, 749, 813, 652, 669, 778, 595, 540, 619, 884, 363, 22, 74, 914, 891, 516, 101, 764, 629, 342, 887, 377, 449, 1019, 763, 845, 66, 961, 888, 597, 370, 151, 267, 104, 1010, 917, 113, 1020, 316, 796, 521, 515, 677, 398, 568, 491, 878, 768, 468, 199, 13, 75, 704, 663, 357, 577, 15, 319, 462, 640, 453, 831, 388, 249, 765, 489, 391, 821, 305, 384, 881, 864, 857, 387, 367, 851, 123, 951, 626, 409, 88, 1040, 1023, 83, 724, 986, 636, 943, 4, 847, 21, 40, 751, 605, 824, 815, 610, 912, 218, 1061, 1070, 368, 144, 952, 3, 191, 229, 507, 707, 921, 438, 495, 508, 989, 454, 310, 326, 551, 812, 186, 958, 890, 1055, 461, 627, 576, 512, 122, 1062, 732, 1018, 996, 586, 686, 259, 379, 630, 895, 108, 915, 983, 125, 714, 691, 717, 1036, 759, 899, 257, 302, 874, 128, 725, 911, 689]
 
 class DataAugmentation:
     def __init__(self, data_dir, zero_lid_dir, one_lid_dir, iou_tolerance=None):
@@ -26,7 +27,8 @@ class DataAugmentation:
         #self.DATA_DIR = data_dir
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
-        self.split_randomly(n=len(self.one_lids), p=0.2)
+        #self.split_randomly(n=len(self.one_lids), p=0.2)
+        self.split_randomly2(len(self.one_lids))
         self.STANDARD_RESOLUTION = (600, 800)
         self.masks = None
         self.percentile_binary_mask = None
@@ -46,9 +48,13 @@ class DataAugmentation:
             self.iou_tolerance = iou_tolerance
         self.iou_bound = 0.01
         self.edge_case_probability = 0.05
-        self.dark_case_probability = 0.25
+        self.dark_case_probability = 0.15
         self.synthesize_dir = "synthesized"
 
+    def split_randomly2(self, n):
+        indexes = list(range(0, n))
+        self.train_indexes = list(set(indexes) - set(TEST_INDEXES))
+        self.test_indexes = TEST_INDEXES
     def split_randomly(self, n, p):
         indexes = list(range(0, n))
         shuffle(indexes)
@@ -90,7 +96,7 @@ class DataAugmentation:
 
     def get_random_position(self):
         indexes = self.percentile_binary_mask.nonzero()
-        i = randint(0, np.shape(indexes)[1])
+        i = randint(0, np.shape(indexes)[1] - 1)
         x, y = indexes[1][i], indexes[0][i]
         return x, y
 
