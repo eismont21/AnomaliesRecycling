@@ -49,6 +49,7 @@ class DataAugmentation:
         self.iou_bound = 0.01
         self.edge_case_probability = 0.05
         self.dark_case_probability = 0.15
+        self.change_color_case_probability = 0.15
         self.synthesize_dir = "synthesized"
 
     def split_randomly2(self, n):
@@ -133,6 +134,9 @@ class DataAugmentation:
                 flag_dark = False
                 if make_dark:
                     flag_dark = random.random() < self.dark_case_probability
+                flag_color = False
+                if change_color:
+                    flag_color = random.random() < self.change_color_case_probability
                 angle = 0
                 if rotate:
                     angle = randint(0, 360)
@@ -148,7 +152,7 @@ class DataAugmentation:
                     bbs = bbs_new.copy()
                     bbs.append(bb_new)
                     break
-            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, change_color, flag_dark)
+            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark)
             for k in range(len(object_binary_masks)):
                 bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
                 mask_inv = np.zeros((600, 800), np.uint8)
