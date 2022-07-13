@@ -1,3 +1,4 @@
+IM_ROOT_DIR = "/cvhci/temp/p22g5/data/"
 from detectron2.utils.visualizer import ColorMode
 import os
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -14,10 +15,15 @@ import pandas as pd
 from detectron2.utils.logger import setup_logger
 setup_logger()
 
-IM_ROOT_DIR = "/cvhci/temp/p22g5/data/"
-
 
 def predict_and_evaluate(weights_path, test_labels, thresh_test=0.5):
+    """
+    Predicts the number of objects on the image for the test dataset
+    :param weights_path: path to the detectron2 weights model
+    :param test_labels: path to the test labels
+    :param thresh_test: the score threshold test, the more, the more certain is the prediction
+    :return: dataframe of form (filename, count, prediction)
+    """
     cfg = setup()
     print("WEIGHTS = ", weights_path)
     cfg.MODEL.WEIGHTS = weights_path
@@ -36,6 +42,13 @@ def predict_and_evaluate(weights_path, test_labels, thresh_test=0.5):
 
 
 def predict_and_visualize(weights_path, thresh_test, results, show_label=1):
+    """
+    Visualize the special labels
+    :param weights_path: path to the detectron2 weights model
+    :param thresh_test: the score threshold test, the more, the more certain is the prediction
+    :param results: got from the function :predict_and_evaluate
+    :param show_label: ground truth label to show
+    """
     cfg = setup()
     cfg.MODEL.WEIGHTS = weights_path
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = thresh_test

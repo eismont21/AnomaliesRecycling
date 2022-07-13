@@ -7,6 +7,9 @@ from detectron2.solver.build import maybe_add_gradient_clipping, get_default_opt
 
 
 class PolysecureTrainer(DefaultTrainer):
+    """
+    Overrides DefaultTrainer to define own evaluator and optimaizer
+    """
     @classmethod
     def build_evaluator(cls, cfg, dataset_name):
         output_dir = os.path.join(cfg.OUTPUT_DIR, "inference")

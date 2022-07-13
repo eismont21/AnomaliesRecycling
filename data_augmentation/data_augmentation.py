@@ -21,8 +21,18 @@ HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 
 TEST_INDEXES = [920, 574, 33, 372, 471, 344, 272, 322, 1069, 693, 621, 1025, 541, 780, 861, 194, 167, 990, 642, 585, 552, 1000, 155, 571, 230, 303, 681, 7, 149, 1, 400, 650, 59, 834, 798, 938, 649, 795, 604, 755, 699, 284, 212, 97, 919, 712, 119, 695, 355, 1028, 378, 1049, 198, 684, 1060, 772, 548, 639, 555, 1035, 380, 749, 813, 652, 669, 778, 595, 540, 619, 884, 363, 22, 74, 914, 891, 516, 101, 764, 629, 342, 887, 377, 449, 1019, 763, 845, 66, 961, 888, 597, 370, 151, 267, 104, 1010, 917, 113, 1020, 316, 796, 521, 515, 677, 398, 568, 491, 878, 768, 468, 199, 13, 75, 704, 663, 357, 577, 15, 319, 462, 640, 453, 831, 388, 249, 765, 489, 391, 821, 305, 384, 881, 864, 857, 387, 367, 851, 123, 951, 626, 409, 88, 1040, 1023, 83, 724, 986, 636, 943, 4, 847, 21, 40, 751, 605, 824, 815, 610, 912, 218, 1061, 1070, 368, 144, 952, 3, 191, 229, 507, 707, 921, 438, 495, 508, 989, 454, 310, 326, 551, 812, 186, 958, 890, 1055, 461, 627, 576, 512, 122, 1062, 732, 1018, 996, 586, 686, 259, 379, 630, 895, 108, 915, 983, 125, 714, 691, 717, 1036, 759, 899, 257, 302, 874, 128, 725, 911, 689]
 
+
 class DataAugmentation:
-    def __init__(self, data_dir, zero_lid_dir, one_lid_dir, iou_tolerance=None):
+    """
+    Class for Data Augmentation
+    """
+    def __init__(self, data_dir, zero_lid_dir, one_lid_dir):
+        """
+        Constructor for the class
+        :param data_dir: directory with images
+        :param zero_lid_dir: filename of csv file with images that have only one lid for generating of other synthesized images
+        :param one_lid_dir: filename of csv file with images that have no lids for generating of other synthesized images
+        """
         self.DATA_DIR = os.path.join(STORE_DIR, data_dir)
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
@@ -43,8 +53,6 @@ class DataAugmentation:
                                "open lid",
                                "synthesized"]
         self.iou_tolerance = 0.8
-        if iou_tolerance is not None:
-            self.iou_tolerance = iou_tolerance
         self.iou_bound = 0.01
         self.edge_case_probability = 0.05
         self.dark_case_probability = 0.15
@@ -54,11 +62,22 @@ class DataAugmentation:
         self.synthesize_dir = "synthesized"
 
     def split_randomly2(self, n):
+        """
+        Use this instead of :split_randomly for controlling the lids for test
+        :param n:
+        :return:
+        """
         indexes = list(range(0, n))
         self.train_indexes = list(set(indexes) - set(TEST_INDEXES))
         self.test_indexes = TEST_INDEXES
 
     def split_randomly(self, n, p):
+        """
+        Generate random split for train and test indexes
+        :param n: number of items
+        :param p: percent of test indexes
+        :return:
+        """
         indexes = list(range(0, n))
         shuffle(indexes)
         last = int(n * (1 - p))
@@ -66,6 +85,10 @@ class DataAugmentation:
         self.test_indexes = indexes[last:]
 
     def extract_masks(self):
+        """
+        Extract binary masks from images with one lid
+        :return: binary masks
+        """
         self.masks = []
         print('Generating and saving masks for images')
         with tqdm(total=len(self.one_lids), ncols=100) as pbar:
@@ -82,6 +105,11 @@ class DataAugmentation:
         return self.masks
 
     def get_sum_binary_mask(self, show=True):
+        """
+        Calculate the sum of binary masks in all images. Used for generating heatmap.
+        :param show: whether to show the density heatmap
+        :return: summed mask
+        """
         summed_mask = np.zeros(self.STANDARD_RESOLUTION)
         for mask in self.masks:
             binary_mask = cv2.bitwise_not(mask.get_binary_mask())
@@ -92,18 +120,33 @@ class DataAugmentation:
         return summed_mask
 
     def get_percentile_sum_binary_mask(self, summed_mask, percentile=95, show=True):
+        """
+        Calculate the percentile binary mask from summed mask.
+        :param summed_mask: summed mask
+        :param percentile: percent values
+        :param show: whether to show
+        :return: percentile binary mask
+        """
         self.percentile_binary_mask = np.where(summed_mask > np.percentile(summed_mask, percentile), 1, 0)
         if show:
             plt.imshow(self.percentile_binary_mask)
         return self.percentile_binary_mask
 
     def get_random_position(self):
+        """
+        Get random point from percentile binary mask.
+        :return: (x,y) point for the center of the lid to insert
+        """
         indexes = self.percentile_binary_mask.nonzero()
         i = randint(0, np.shape(indexes)[1] - 1)
         x, y = indexes[1][i], indexes[0][i]
         return x, y
 
     def get_random_background(self):
+        """
+        Get random background from zero lid images (empry tray).
+        :return: background image
+        """
         i = randint(0, len(self.empty_trays)-1)
         empty_tray_name = self.empty_trays.iloc[i]['name']
         empty_tray_path = os.path.join(self.DATA_DIR, empty_tray_name)
@@ -111,6 +154,11 @@ class DataAugmentation:
         return empty_tray
     
     def get_random_object(self, pick_from="all"):
+        """
+        Ger random object (lid)
+        :param pick_from: where to take: train, test, all
+        :return: random index in the self.mask
+        """
         if pick_from == "train":
             i = self.train_indexes[randint(0, len(self.train_indexes)-1)]
         elif pick_from == "test":
@@ -120,6 +168,16 @@ class DataAugmentation:
         return i
 
     def copy_and_paste(self, label, rotate, change_color, make_dark, transparent, pick_from='all'):
+        """
+        Generate one synthesized image with copy and paste method.
+        :param label: number of objects
+        :param rotate: rotate the inserted object with random angle
+        :param change_color: change color of inserted object
+        :param make_dark: make the inserted object dark
+        :param transparent: make the inserted object transparent
+        :param pick_from: generate from train, test, or all
+        :return: synthesized image, its tags, its binary object masks
+        """
         object_binary_masks = []
         background = self.get_random_background()
         d = [np.nan for i in range(len(self.inherited_tags))]
@@ -157,7 +215,7 @@ class DataAugmentation:
                 
                 i = self.get_random_object(pick_from)
                 bb_new = self.masks[i].get_mask_dic(x, y, angle)
-                flag, bbs_new = self._check_overlap_3(bbs, bb_new, self.iou_tolerance)
+                flag, bbs_new = self._check_overlap(bbs, bb_new, self.iou_tolerance)
                 if not(flag):
                     bbs = bbs_new.copy()
                     bbs.append(bb_new)
@@ -180,7 +238,7 @@ class DataAugmentation:
                 df.iloc[0]['edge'] = 1
             if flag_dark:
                 df.iloc[0]['dark color'] = 1
-            self.combine_tags(df, self.masks[i].tags)
+            self._combine_tags(df, self.masks[i].tags)
             
         for bb in bbs:
             if bb['overlapped'] > self.iou_bound:
@@ -195,7 +253,7 @@ class DataAugmentation:
         df[tags] = df[tags].astype(int)
         return background, df, object_binary_masks
     
-    def _check_overlap_3(self, bbs, bb_new, tol):
+    def _check_overlap(self, bbs, bb_new, tol):
         flag = False
         bbs_new = []
         if bb_new['overlapped'] > tol:
@@ -217,7 +275,13 @@ class DataAugmentation:
                 
         return flag, bbs_new
 
-    def combine_tags(self, result, new):
+    def _combine_tags(self, result, new):
+        """
+        Combine tags for the synthesized image from the original images
+        :param result: resulting tags
+        :param new: new tag
+        :return:
+        """
         for tag in self.inherited_tags:
             if tag in ["edge", "transparent", "inside", "overlapping", "dark color", "open lid"]:
                 if np.isnan(result.iloc[0][tag]):
@@ -225,46 +289,18 @@ class DataAugmentation:
                 else:
                     result.iloc[0][tag] = int(result.iloc[0][tag]) or int(new.iloc[0][tag])
 
-    def get_mask_from_bb(self, bb):
-        a = np.zeros(self.STANDARD_RESOLUTION, dtype=int)
-        for x in range(bb['x1'], bb['x2']):
-            for y in range(bb['y1'], bb['y2']):
-                a[y, x] = 1
-        return a
-
-    def get_joined_mask(self, masks):
-        a = np.zeros(self.STANDARD_RESOLUTION, dtype=int)
-        for mask in masks:
-            np.bitwise_or(a, mask)
-        return a
-
-    def _check_overlap_2(self, bbs, bb_new, tol):
-        bbs_all = bbs + [bb_new]
-        for i in range(len(bbs_all)):
-            bbs_current = bbs_all[:i] + bbs_all[i+1:]
-            masks = list(map(self.get_mask_from_bb, bbs_current))
-            joined_mask = self.get_joined_mask(masks)
-            bb_current = self.get_mask_from_bb(bbs_all[i])
-            if self._iou(joined_mask, bb_current) > tol:
-                return True
-        return False
-
-    def _iou(self, mask1, mask2):
-        mask1_area = np.count_nonzero(mask1 == 1)
-        mask2_area = np.count_nonzero(mask2 == 1)
-        intersection = np.count_nonzero(np.logical_and(mask1, mask2))
-        iou = intersection / (mask1_area + mask2_area - intersection)
-        return iou
-
-    @staticmethod
-    def _check_overlap(bbs, bb_new, tol):
-        for bb in bbs:
-            iou = get_iou(bb, bb_new)
-            if iou > tol:
-                return True
-        return False
-
     def generate(self, classes, rotate=True, change_color=False, make_dark=False, transparent=False, coco_annotation=True, data_dir_name='data'):
+        """
+        Generate synthesized images. Main method in the class.
+        :param classes: which images to synthesize e.g. {1: 2} synthesizes 2 images with 1 object
+        :param rotate: rotate the inserted object with random angle
+        :param change_color: change color of inserted object
+        :param make_dark: make the inserted object dark
+        :param transparent: make the inserted object transparent
+        :param coco_annotation: create a coco annotation labels
+        :param data_dir_name: train, test or all
+        :return:
+        """
         new_csv = pd.DataFrame()
         synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
         annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
@@ -296,62 +332,12 @@ class DataAugmentation:
                 n_annotations += key * value
             create_coco_json(data_dir, annotations_dir, synthesized_dir, 'coco_' + data_dir_name, n_annotations)
 
-
-
     @staticmethod
     def get_noise_img(img, mode='gaussian'):
+        """
+        Add noise to the image noisy image.
+        :param img: input image
+        :param mode: type of noise
+        :return: image with noise
+        """
         return np.array(255*random_noise(img, mode=mode), dtype='uint8')
-
-
-def get_iou(bb1, bb2):
-    """
-    Calculate the Intersection over Union (IoU) of two bounding boxes.
-
-    Parameters
-    ----------
-    bb1 : dict
-        Keys: {'x1', 'x2', 'y1', 'y2'}
-        The (x1, y1) position is at the top left corner,
-        the (x2, y2) position is at the bottom right corner
-    bb2 : dict
-        Keys: {'x1', 'x2', 'y1', 'y2'}
-        The (x, y) position is at the top left corner,
-        the (x2, y2) position is at the bottom right corner
-
-    Returns
-    -------
-    float
-        in [0, 1]
-    """
-    assert bb1['x1'] < bb1['x2']
-    assert bb1['y1'] < bb1['y2']
-    assert bb2['x1'] < bb2['x2']
-    assert bb2['y1'] < bb2['y2']
-
-    # determine the coordinates of the intersection rectangle
-    x_left = max(bb1['x1'], bb2['x1'])
-    y_top = max(bb1['y1'], bb2['y1'])
-    x_right = min(bb1['x2'], bb2['x2'])
-    y_bottom = min(bb1['y2'], bb2['y2'])
-
-    if x_right < x_left or y_bottom < y_top:
-        return 0.0
-
-    # The intersection of two axis-aligned bounding boxes is always an
-    # axis-aligned bounding box
-    intersection_area = (x_right - x_left) * (y_bottom - y_top)
-
-    # compute the area of both AABBs
-    bb1_area = (bb1['x2'] - bb1['x1']) * (bb1['y2'] - bb1['y1'])
-    bb2_area = (bb2['x2'] - bb2['x1']) * (bb2['y2'] - bb2['y1'])
-
-    # compute the intersection over union by taking the intersection
-    # area and dividing it by the sum of prediction + ground-truth
-    # areas - the interesection area
-    iou = intersection_area / float(bb1_area + bb2_area - intersection_area)
-    assert iou >= 0.0
-    assert iou <= 1.0
-    return iou
-
-
-

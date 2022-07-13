@@ -1,5 +1,6 @@
 """
 This script is based on the training script in detectron2/tools.
+This starts the detectron2 model training.
 """
 ROOT_DIR = "/home/p22g5/AnomaliesRecycling/"
 STORE_DIR = "/cvhci/temp/p22g5/"
@@ -73,6 +74,7 @@ def add_standard_config(cfg):
     #cfg.OUTPUT_DIR = ROOT_DIR + "output_segmentation/maskrcnn/"
     cfg.INPUT.MASK_FORMAT = 'bitmask'
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
+
 
 def main(args):
     cfg = setup(args)
