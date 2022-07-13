@@ -50,12 +50,14 @@ class DataAugmentation:
         self.edge_case_probability = 0.05
         self.dark_case_probability = 0.15
         self.change_color_case_probability = 0.15
+        self.transparent_case_probability = 0.25
         self.synthesize_dir = "synthesized"
 
     def split_randomly2(self, n):
         indexes = list(range(0, n))
         self.train_indexes = list(set(indexes) - set(TEST_INDEXES))
         self.test_indexes = TEST_INDEXES
+
     def split_randomly(self, n, p):
         indexes = list(range(0, n))
         shuffle(indexes)
@@ -117,7 +119,7 @@ class DataAugmentation:
             i = randint(0, len(self.masks) - 1)
         return i
 
-    def copy_and_paste(self, label, rotate, change_color, make_dark, pick_from='all'):
+    def copy_and_paste(self, label, rotate, change_color, make_dark, transparent, pick_from='all'):
         object_binary_masks = []
         background = self.get_random_background()
         d = [np.nan for i in range(len(self.inherited_tags))]
@@ -152,13 +154,18 @@ class DataAugmentation:
                     bbs = bbs_new.copy()
                     bbs.append(bb_new)
                     break
-            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark)
-            for k in range(len(object_binary_masks)):
-                bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
-                mask_inv = np.zeros((600, 800), np.uint8)
-                new = cv2.bitwise_and(bin_xor, cv2.bitwise_not(object_binary_masks[k]))
-                object_binary_masks[k] = cv2.bitwise_not(new)
+            flag_transparent = False
+            if transparent:
+                flag_transparent = random.random() < self.transparent_case_probability
+            background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark, flag_transparent)
+            if not flag_transparent:
+                for k in range(len(object_binary_masks)):
+                    bin_xor = cv2.bitwise_xor(binary_mask, object_binary_masks[k])
+                    new = cv2.bitwise_and(bin_xor, cv2.bitwise_not(object_binary_masks[k]))
+                    object_binary_masks[k] = cv2.bitwise_not(new)
             object_binary_masks.append(binary_mask)
+            if flag_transparent:
+                df.iloc[0]['transparent'] = 1
             if flag_edge:
                 df.iloc[0]['edge'] = 1
             if flag_dark:
@@ -247,7 +254,7 @@ class DataAugmentation:
                 return True
         return False
 
-    def generate(self, classes, rotate=True, change_color=False, make_dark=False, coco_annotation=True, data_dir_name='data'):
+    def generate(self, classes, rotate=True, change_color=False, make_dark=False, transparent=False, coco_annotation=True, data_dir_name='data'):
         new_csv = pd.DataFrame()
         synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
         annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
@@ -259,7 +266,7 @@ class DataAugmentation:
         with tqdm(total=sum(classes.values()), ncols=100) as pbar:
             for label in classes:
                 for i in range(classes[label]):
-                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, make_dark, data_dir_name)
+                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, make_dark, transparent, data_dir_name)
                     img_id = "label_" + str(label) + "_" + "img_" + str(i)
                     img_name = img_id + ".jpg"
                     for j in range(len(bin_masks)):
