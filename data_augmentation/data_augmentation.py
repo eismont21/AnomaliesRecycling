@@ -23,8 +23,7 @@ TEST_INDEXES = [920, 574, 33, 372, 471, 344, 272, 322, 1069, 693, 621, 1025, 541
 
 class DataAugmentation:
     def __init__(self, data_dir, zero_lid_dir, one_lid_dir, iou_tolerance=None):
-        self.DATA_DIR = STORE_DIR + data_dir
-        #self.DATA_DIR = data_dir
+        self.DATA_DIR = os.path.join(STORE_DIR, data_dir)
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
         self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
         #self.split_randomly(n=len(self.one_lids), p=0.2)
@@ -51,6 +50,7 @@ class DataAugmentation:
         self.dark_case_probability = 0.15
         self.change_color_case_probability = 0.15
         self.transparent_case_probability = 0.25
+        self.rotate_case_probability = 0.5
         self.synthesize_dir = "synthesized"
 
     def split_randomly2(self, n):
@@ -139,9 +139,12 @@ class DataAugmentation:
                 flag_color = False
                 if change_color and not(flag_dark):
                     flag_color = random.random() < self.change_color_case_probability
-                angle = 0
+                flag_rotate = False
                 if rotate:
-                    angle = randint(0, 360)
+                    flag_rotate = random.random() < self.rotate_case_probability
+                    angle = randint(1, 360)
+                else:
+                    angle = 0
                 flag_edge = random.random() < self.edge_case_probability
                 if flag_edge:
                     x, y = random.randint(-20, 820), random.choice(list(range(-20, 10)) + list(range(590, 620)))

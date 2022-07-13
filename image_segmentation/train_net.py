@@ -6,14 +6,9 @@ STORE_DIR = "/cvhci/temp/p22g5/"
 IM_ROOT_DIR = "/cvhci/temp/p22g5/data/synthesized/"
 import torch
 from datetime import datetime
-#import sys
-#sys.path.append(ROOT_DIR + "PANDA-Toolkit")
 import os
-#os.chdir('../../')
-#print(os.getcwd())
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
-#os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 from detectron2.engine import launch, default_argument_parser
 from detectron2.evaluation import COCOEvaluator, DatasetEvaluators, inference_on_dataset
@@ -21,8 +16,8 @@ from detectron2.utils.logger import setup_logger
 setup_logger()
 from detectron2.config import get_cfg
 from detectron2.data.datasets import register_coco_instances
-
-from PolysecureTrainer import PolysecureTrainer
+from detectron2.data import DatasetCatalog
+from image_segmentation.PolysecureTrainer import PolysecureTrainer
 
 from detectron2.checkpoint import DetectionCheckpointer
 
@@ -37,7 +32,8 @@ TRAIN_IMAGES = IM_ROOT_DIR + "train"
 TEST_IMAGES = IM_ROOT_DIR + "test"
 
 
-def setup(args):
+def setup(args=None):
+    DatasetCatalog.clear()
     cfg = get_cfg()
     register_coco_instances(DATASET_TRAIN_NAME, {}, TRAIN_ANNO, TRAIN_IMAGES)
     register_coco_instances(DATASET_TEST_NAME, {}, TEST_ANNO, TEST_IMAGES)
@@ -60,13 +56,7 @@ def do_train(args, cfg, trainer):
     trainer.train()
 
 
-def do_test(cfg, trainer):
-    evaluator = PolysecureTrainer.build_evaluator(cfg, DATASET_TEST_NAME)
-    val_loader = PolysecureTrainer.build_test_loader(cfg, DATASET_TEST_NAME)
-    print(inference_on_dataset(trainer.model, val_loader, evaluator))
-
-
-def do_test2(args, cfg):
+def do_test(args, cfg):
     model = PolysecureTrainer.build_model(cfg)
     print("do_test2")
     print("model weights: " + cfg.MODEL.WEIGHTS)
@@ -84,27 +74,18 @@ def add_standard_config(cfg):
     cfg.INPUT.MASK_FORMAT = 'bitmask'
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 
-
-def save_model(model):
-    torch.save(model, ROOT_DIR+'output_segmentation/maskrcnn.pth')
-    torch.save(model.state_dict(), ROOT_DIR+'output_segmentation/maskrcnn_inf.pth')
-    #torch.jit.save(torch.jit.script(model), 'Q_RetinaNet_jit.pth') # not supported yet
-
-
 def main(args):
     cfg = setup(args)
     trainer = PolysecureTrainer(cfg)
     if args.eval_only:
-
         cfg.MODEL.WEIGHTS = ROOT_DIR + "MaskRCNN_inf.pth"
         #cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
         print("model weights: " + cfg.MODEL.WEIGHTS)
-        do_test2(args, cfg)
+        do_test(args, cfg)
     else:
         print("Model training->")
         #cfg.MODEL.WEIGHTS = ROOT_DIR + "output/quantized_retinanet_apot/model_0007999.pth" # for starting with pretrained weights
         do_train(args, cfg, trainer)
-        save_model(trainer.model)
 
 
 if __name__ == "__main__":
