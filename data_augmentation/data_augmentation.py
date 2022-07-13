@@ -137,7 +137,7 @@ class DataAugmentation:
                 if make_dark:
                     flag_dark = random.random() < self.dark_case_probability
                 flag_color = False
-                if change_color:
+                if change_color and not(flag_dark):
                     flag_color = random.random() < self.change_color_case_probability
                 angle = 0
                 if rotate:
@@ -155,7 +155,7 @@ class DataAugmentation:
                     bbs.append(bb_new)
                     break
             flag_transparent = False
-            if transparent:
+            if transparent and not(flag_dark):
                 flag_transparent = random.random() < self.transparent_case_probability
             background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark, flag_transparent)
             if not flag_transparent:
