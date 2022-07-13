@@ -19,7 +19,7 @@ from src.recycling_dataset import RecyclingDataset
 import warnings
 warnings.simplefilter("ignore", UserWarning)
 from src.stratified_batch import StratifiedBatchSampler
-from src.rejection_accuracy import RejectionAccuracy
+from src.decision_accuracy import DecisionAccuracy
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -116,11 +116,11 @@ class TransferLearningTrainer:
         samplers = [sampler, None]
         self.dataloaders = {x: torch.utils.data.DataLoader(self.image_datasets[x],
                                                            #sampler=samplers[i],
-                                                           #batch_sampler=StratifiedBatchSampler(self.image_datasets[x].img_labels['count'],
-#                                                                                                batch_size=self.batch_size,
-#                                                                                                shuffle=self.shuffle),
-                                                           batch_size=self.batch_size,
-                                                           shuffle=self.shuffle,
+                                                           batch_sampler=StratifiedBatchSampler(self.image_datasets[x].img_labels['count'],
+                                                                                                batch_size=self.batch_size,
+                                                                                                shuffle=self.shuffle),
+                                                           #batch_size=self.batch_size,
+                                                           #shuffle=self.shuffle,
                                                            num_workers=self.num_workers)
                             for i, x in enumerate(['train', 'test'])}
 
@@ -172,7 +172,7 @@ class TransferLearningTrainer:
         best_mae = 1.0
         best_mse = 1.0
         best_r2 = 0.0
-        best_re_acc = 0.0
+        best_de_acc = 0.0
 
         for epoch in range(num_epochs):
             print(f'Epoch {epoch}/{num_epochs - 1}')
@@ -191,7 +191,7 @@ class TransferLearningTrainer:
                 get_mae = torchmetrics.MeanAbsoluteError().to(DEVICE)
                 get_mse = torchmetrics.MeanSquaredError().to(DEVICE)
                 get_r2 = torchmetrics.R2Score().to(DEVICE)
-                get_re_acc = RejectionAccuracy().to(DEVICE)
+                get_de_acc = DecisionAccuracy().to(DEVICE)
 
                 # Iterate over data.
                 for sample in self.dataloaders[phase]:
@@ -215,7 +215,7 @@ class TransferLearningTrainer:
                         mae = get_mae(preds, labels)
                         mse = get_mse(preds, labels)
                         r2 = get_r2(preds, labels)
-                        re_acc = get_re_acc(preds, labels)
+                        de_acc = get_de_acc(preds, labels)
 
                         # backward + optimize only if in training phase
                         if phase == 'train':
@@ -234,14 +234,14 @@ class TransferLearningTrainer:
                 epoch_mae = get_mae.compute()
                 epoch_mse = get_mse.compute()
                 epoch_r2 = get_r2.compute()
-                epoch_re_acc = get_re_acc.compute()
+                epoch_de_acc = get_de_acc.compute()
 
-                print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} Re_Acc : {epoch_re_acc:.4f} MAE: {epoch_mae:.4f} MSE: {epoch_mse:.4f} R^2: {epoch_r2:.4f}')
+                print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f} De_Acc : {epoch_de_acc:.4f} MAE: {epoch_mae:.4f} MSE: {epoch_mse:.4f} R^2: {epoch_r2:.4f}')
                 
                 get_mae.reset()
                 get_mse.reset()
                 get_r2.reset()
-                get_re_acc.reset()
+                get_de_acc.reset()
 
                 y_loss[phase].append(epoch_loss)
                 y_acc[phase].append(epoch_acc)
@@ -258,13 +258,14 @@ class TransferLearningTrainer:
                     #if epoch_acc > best_acc:
                     #    best_acc = epoch_acc
                     #    best_model_wts = copy.deepcopy(model.state_dict())
-                    if epoch_re_acc > best_re_acc:
-                        best_re_acc = epoch_re_acc
+                    if (epoch_de_acc > best_de_acc) or ((epoch_de_acc == best_de_acc) and (best_acc < epoch_acc)):
+                        best_de_acc = epoch_de_acc
                         best_acc = epoch_acc
                         best_mae = epoch_mae
                         best_mse = epoch_mse
                         best_r2 = epoch_r2
                         best_model_wts = copy.deepcopy(model.state_dict())
+                        
 
                 # Early Stopping
                 if early_stop and phase == 'test':
@@ -287,12 +288,12 @@ class TransferLearningTrainer:
         time_elapsed = time.time() - since
         print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
         print(f'Best test acc: {best_acc:4f}')
-        print(f'Best test re_acc: {best_re_acc:4f}')
+        print(f'Best test de_acc: {best_de_acc:4f}')
         print(f'Best test mae: {best_mae:4f}')
         print(f'Best test mse: {best_mse:4f}')
         print(f'Best test R^2: {best_r2:4f}')
         
-        self.metrics = {'acc': best_acc.item(), 're_acc': best_re_acc.item(), 'mae': best_mae.item(),
+        self.metrics = {'acc': best_acc.item(), 'de_acc': best_de_acc.item(), 'mae': best_mae.item(),
                         'mse': best_mse.item(), 'r^2': best_r2.item()}
         
         self.result.update(self.metrics)
@@ -436,19 +437,27 @@ class TransferLearningTrainer:
             y_true.extend(labels)  # Save Truth
 
         # Build confusion matrix
-        cf_matrix = confusion_matrix(y_true, y_pred)
-        matrix_new = [0] * len(cf_matrix)
-        for i, row in enumerate(cf_matrix):
-            b = [e / sum(row) for e in row]
-            matrix_new[i] = b.copy()
-        matrix_new = np.array(matrix_new)
-        self.confusion_diagonal = matrix_new.diagonal()
-        df_cm = pd.DataFrame(matrix_new, index=[i for i in self.class_names],
-                             columns=[i for i in self.class_names])
-        plt.figure(figsize=(4, 4), dpi=140)
-        ax = sn.heatmap(df_cm, fmt=".0%", annot=True, cmap='Blues', cbar=False)
-        for i, t in enumerate(ax.texts):
-            t.set_text(t.get_text() + "\n" + '(' + str(cf_matrix[i // n_classes, i % n_classes]) + ')')
+        cm = confusion_matrix(y_true, y_pred, labels=np.unique(y_true))
+        cm_sum = np.sum(cm, axis=1, keepdims=True)
+        cm_perc = cm / cm_sum.astype(float) * 100
+        annot = np.empty_like(cm).astype(str)
+        self.confusion_diagonal = []
+        nrows, ncols = cm.shape
+        for i in range(nrows):
+            for j in range(ncols):
+                c = cm[i, j]
+                p = cm_perc[i, j]
+                if i == j:
+                    s = cm_sum[i]
+                    annot[i, j] = '%.0f%%\n%d/%d' % (p, c, s)
+                    self.confusion_diagonal.append(p / 100)
+                elif c == 0:
+                    annot[i, j] = ''
+                else:
+                    annot[i, j] = '%.0f%%\n%d' % (p, c)
+        cm = pd.DataFrame(cm, index=np.unique(y_true), columns=np.unique(y_true))
+        fig, ax = plt.subplots(figsize=(5.5, 5.5), dpi=140)
+        sn.heatmap(cm, cmap= "Blues", annot=annot, fmt='', ax=ax, cbar=False)
         plt.yticks(rotation=0)
         ax.set_xlabel('Predicted label')
         ax.set_ylabel('True label')
@@ -456,6 +465,7 @@ class TransferLearningTrainer:
         ax.xaxis.set_label_position('top')
         plt.xticks(rotation=90)
         plt.plot()
+        
         if self.save_results:
             plt.savefig(self.store_dir + 'images/' + 'confusion_matrix.png')
             plt.close('all')

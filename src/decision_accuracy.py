@@ -1,7 +1,7 @@
 from torchmetrics import Metric
 import torch
 
-class RejectionAccuracy(Metric):
+class DecisionAccuracy(Metric):
     def __init__(self):
         super().__init__()
         self.add_state("correct", default=torch.tensor(0), dist_reduce_fx="sum")
