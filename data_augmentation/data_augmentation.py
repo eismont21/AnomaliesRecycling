@@ -136,20 +136,25 @@ class DataAugmentation:
                 flag_dark = False
                 if make_dark:
                     flag_dark = random.random() < self.dark_case_probability
+                
                 flag_color = False
                 if change_color and not(flag_dark):
                     flag_color = random.random() < self.change_color_case_probability
+                
                 flag_rotate = False
                 if rotate:
                     flag_rotate = random.random() < self.rotate_case_probability
+                if flag_rotate:
                     angle = randint(1, 360)
                 else:
                     angle = 0
+                
                 flag_edge = random.random() < self.edge_case_probability
                 if flag_edge:
                     x, y = random.randint(-20, 820), random.choice(list(range(-20, 10)) + list(range(590, 620)))
                 else:
                     x, y = self.get_random_position()
+                
                 i = self.get_random_object(pick_from)
                 bb_new = self.masks[i].get_mask_dic(x, y, angle)
                 flag, bbs_new = self._check_overlap_3(bbs, bb_new, self.iou_tolerance)
@@ -157,9 +162,11 @@ class DataAugmentation:
                     bbs = bbs_new.copy()
                     bbs.append(bb_new)
                     break
+            
             flag_transparent = False
             if transparent and not(flag_dark):
                 flag_transparent = random.random() < self.transparent_case_probability
+            
             background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark, flag_transparent)
             if not flag_transparent:
                 for k in range(len(object_binary_masks)):
