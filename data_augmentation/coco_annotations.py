@@ -53,7 +53,8 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 'height': 600
             }
             coco_output['images'].append(image_info)
-            for annotation_name in [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name == annotation.split('_lid')[0]]:
+            annotation_names = [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name == annotation.split('_lid')[0]]
+            for annotation_name in annotation_names:
                 annotation_id += 1
                 jpg_annotation = os.path.join(annotation_dir, annotation_name)
                 annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
@@ -63,6 +64,8 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 try:
                     contour = contours[0]
                 except IndexError:
+                    annotation_id -= 1
+                    print('coco annotations index -1')
                     continue
                 x, y = contour.T
                 x = x.tolist()[0]
