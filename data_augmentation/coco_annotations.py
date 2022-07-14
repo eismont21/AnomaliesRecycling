@@ -40,11 +40,11 @@ coco_output = {
 
 
 def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annotations):
-    image_id = 0
-    annotation_id = 0
     with tqdm(total=n_annotations, ncols=100) as pbar:
+        image_id = -1
+        annotation_id = -1
         for filename in [file for file in os.listdir(image_dir) if file.endswith('.jpg')]:
-            jpg_image = os.path.join(image_dir, filename)
+            image_id += 1
             image_name = os.path.splitext(filename)[0]
             image_info = {
                 'id': image_id,
@@ -54,6 +54,7 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
             }
             coco_output['images'].append(image_info)
             for annotation_name in [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name == annotation.split('_lid')[0]]:
+                annotation_id += 1
                 jpg_annotation = os.path.join(annotation_dir, annotation_name)
                 annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
                 annotation_image = cv2.bitwise_not(annotation_image)
@@ -92,10 +93,8 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 }
     
                 coco_output['annotations'].append(annotation_info)
-                annotation_id += 1
                 pbar.update(1)
                 #print("annotaion_id = ", annotation_id)
-            image_id += 1
     json_string = json.dumps(coco_output, indent=4)
     json_path = os.path.join(root_dir, anno_filename + '.json')
     if os.path.isfile(json_path):
