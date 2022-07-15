@@ -30,8 +30,10 @@ class DataAugmentation:
         """
         Constructor for the class
         :param data_dir: directory with images
-        :param zero_lid_dir: filename of csv file with images that have only one lid for generating of other synthesized images
-        :param one_lid_dir: filename of csv file with images that have no lids for generating of other synthesized images
+        :param zero_lid_dir: filename of csv file with images that have no lids
+        for generating of other synthesized images
+        :param one_lid_dir: filename of csv file with images that have only one lid
+        for generating of other synthesized images
         """
         self.DATA_DIR = os.path.join(STORE_DIR, data_dir)
         self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
@@ -197,7 +199,7 @@ class DataAugmentation:
                     flag_dark = random.random() < self.dark_case_probability
                 
                 flag_color = False
-                if change_color and not(flag_dark):
+                if change_color and not flag_dark:
                     flag_color = random.random() < self.change_color_case_probability
                 
                 flag_rotate = False
@@ -219,13 +221,13 @@ class DataAugmentation:
                 i = self.get_random_object(pick_from)
                 bb_new = self.masks[i].get_mask_dic(x, y, angle)
                 flag, bbs_new = self._check_overlap(bbs, bb_new, self.iou_tolerance)
-                if not(flag):
+                if not flag:
                     bbs = bbs_new.copy()
                     bbs.append(bb_new)
                     break
             
             flag_transparent = False
-            if make_transparent and not(flag_dark):
+            if make_transparent and not flag_dark:
                 flag_transparent = random.random() < self.transparent_case_probability
             
             background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark, flag_transparent)
