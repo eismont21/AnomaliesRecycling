@@ -7,39 +7,40 @@ from tqdm import tqdm
 from detectron2.structures import BoxMode
 from scipy.interpolate import splprep, splev
 
-INFO = {
-    'description': 'Synthesized Coco Dataset',
-    'url': '',
-    'version': '1.0',
-    'year': 2022,
-    'contributor': 'CVHCIPraktikum',
-    'date_created': datetime.datetime.utcnow().isoformat(' ')
-}
-LICENSES = [
-    {
-        'url': ' ',
-        'id': 1,
-        'name': ' '
-    }
-]
-CATEGORIES = [
-    {
-        'id': 1,
-        'name': 'Lid',
-        'supercategory': 'object'
-    }
-]
-
-coco_output = {
-    'info': INFO,
-    'licenses': LICENSES,
-    'categories': CATEGORIES,
-    'images': [],
-    'annotations': []
-}
-
 
 def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annotations):
+    # define the coco structure
+    info = {
+        'description': 'Synthesized Coco Dataset',
+        'url': '',
+        'version': '1.0',
+        'year': 2022,
+        'contributor': 'CVHCIPraktikum',
+        'date_created': datetime.datetime.utcnow().isoformat(' ')
+    }
+    licenses = [
+        {
+            'url': ' ',
+            'id': 1,
+            'name': ' '
+        }
+    ]
+    categories = [
+        {
+            'id': 1,
+            'name': 'Lid',
+            'supercategory': 'object'
+        }
+    ]
+
+    coco_output = {
+        'info': info,
+        'licenses': licenses,
+        'categories': categories,
+        'images': [],
+        'annotations': []
+    }
+
     with tqdm(total=n_annotations, ncols=100) as pbar:
         image_id = -1
         annotation_id = -1

@@ -54,11 +54,11 @@ class DataAugmentation:
                                "synthesized"]
         self.iou_tolerance = 0.8
         self.iou_bound = 0.01
+        self.rotate_case_probability = 0.5
+        self.change_color_case_probability = 0.15
         self.edge_case_probability = 0.05
         self.dark_case_probability = 0.15
-        self.change_color_case_probability = 0.15
         self.transparent_case_probability = 0.25
-        self.rotate_case_probability = 0.5
         self.synthesize_dir = "synthesized"
 
     def split_randomly2(self, n):
@@ -167,14 +167,15 @@ class DataAugmentation:
             i = randint(0, len(self.masks) - 1)
         return i
 
-    def copy_and_paste(self, label, rotate, change_color, make_dark, transparent, pick_from='all'):
+    def copy_and_paste(self, label, rotate, change_color, make_edge, make_dark, make_transparent, pick_from='all'):
         """
         Generate one synthesized image with copy and paste method.
         :param label: number of objects
         :param rotate: rotate the inserted object with random angle
         :param change_color: change color of inserted object
         :param make_dark: make the inserted object dark
-        :param transparent: make the inserted object transparent
+        :param make_edge: allows creating objects in the edges
+        :param make_transparent: make the inserted object transparent
         :param pick_from: generate from train, test, or all
         :return: synthesized image, its tags, its binary object masks
         """
@@ -207,7 +208,9 @@ class DataAugmentation:
                 else:
                     angle = 0
                 
-                flag_edge = random.random() < self.edge_case_probability
+                flag_edge = False
+                if make_edge:
+                    flag_edge = random.random() < self.edge_case_probability
                 if flag_edge:
                     x, y = random.randint(-20, 820), random.choice(list(range(-20, 10)) + list(range(590, 620)))
                 else:
@@ -222,7 +225,7 @@ class DataAugmentation:
                     break
             
             flag_transparent = False
-            if transparent and not(flag_dark):
+            if make_transparent and not(flag_dark):
                 flag_transparent = random.random() < self.transparent_case_probability
             
             background, binary_mask = self.masks[i].copy_and_paste(background, x, y, angle, flag_color, flag_dark, flag_transparent)
@@ -289,14 +292,15 @@ class DataAugmentation:
                 else:
                     result.iloc[0][tag] = int(result.iloc[0][tag]) or int(new.iloc[0][tag])
 
-    def generate(self, classes, rotate=True, change_color=False, make_dark=False, transparent=False, coco_annotation=True, data_dir_name='data'):
+    def generate(self, classes, rotate=True, change_color=False, make_edge=False, make_dark=False, make_transparent=False, coco_annotation=True, data_dir_name='data'):
         """
         Generate synthesized images. Main method in the class.
         :param classes: which images to synthesize e.g. {1: 2} synthesizes 2 images with 1 object
         :param rotate: rotate the inserted object with random angle
         :param change_color: change color of inserted object
+        :param make_edge: allows creating object in the edges
         :param make_dark: make the inserted object dark
-        :param transparent: make the inserted object transparent
+        :param make_transparent: make the inserted object transparent
         :param coco_annotation: create a coco annotation labels
         :param data_dir_name: train, test or all
         :return:
@@ -312,12 +316,13 @@ class DataAugmentation:
         with tqdm(total=sum(classes.values()), ncols=100) as pbar:
             for label in classes:
                 for i in range(classes[label]):
-                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color, make_dark, transparent, data_dir_name)
+                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color,
+                                                             make_edge, make_dark, make_transparent, data_dir_name)
                     img_id = "label_" + str(label) + "_" + "img_" + str(i)
                     img_name = img_id + ".jpg"
                     for j in range(len(bin_masks)):
                         bin_name = os.path.join(annotations_dir, img_id + '_' + 'lid' + '_' + str(j) + '.jpg')
-                        cv2.imwrite(bin_name, bin_masks[j])
+                        cv2.mwrite(bin_name, bin_masks[j])
                     name = os.path.join(data_dir, img_name)
                     df.at[0, 'name'] = name
                     new_csv = pd.concat([new_csv, df], ignore_index=True)
