@@ -20,7 +20,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 from image_classification.stratified_batch import StratifiedBatchSampler
 from image_classification.decision_accuracy import DecisionAccuracy
-from image_classification.Constants import Constants
+from image_classification.constants import Constants
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"

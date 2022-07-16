@@ -14,7 +14,7 @@ from detectron2.config import get_cfg
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data import DatasetCatalog
 from image_segmentation.PolysecureTrainer import PolysecureTrainer
-from image_classification.Constants import Constants
+from image_classification.constants import Constants
 
 from detectron2.checkpoint import DetectionCheckpointer
 
