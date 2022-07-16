@@ -89,7 +89,7 @@ class DataAugmentation:
         print('Generating and saving masks for images')
         with tqdm(total=len(self.one_lids), ncols=100) as pbar:
             for index, row in self.one_lids.iterrows():
-                image_path = os.path.join(self.Constants.DATA_DIR.value, row['name'])
+                image_path = os.path.join(Constants.DATA_DIR.value, row['name'])
                 img = cv2.imread(image_path)
                 tags = self.one_lids.iloc[[index]]
                 augm_img = AugmentationImage(img, tags)
@@ -145,7 +145,7 @@ class DataAugmentation:
         """
         i = randint(0, len(self.empty_trays)-1)
         empty_tray_name = self.empty_trays.iloc[i]['name']
-        empty_tray_path = os.path.join(self.Constants.DATA_DIR.value, empty_tray_name)
+        empty_tray_path = os.path.join(Constants.DATA_DIR.value, empty_tray_name)
         empty_tray = cv2.imread(empty_tray_path)
         return empty_tray
     
@@ -302,7 +302,7 @@ class DataAugmentation:
         :return:
         """
         new_csv = pd.DataFrame()
-        synthesized_dir = os.path.join(self.Constants.DATA_DIR.value, self.synthesize_dir)
+        synthesized_dir = os.path.join(Constants.DATA_DIR.value, self.synthesize_dir)
         annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
         data_dir = os.path.join(synthesized_dir, data_dir_name)
         Path(synthesized_dir).mkdir(exist_ok=True)
@@ -322,7 +322,7 @@ class DataAugmentation:
                     name = os.path.join(data_dir, img_name)
                     df.at[0, 'name'] = name
                     new_csv = pd.concat([new_csv, df], ignore_index=True)
-                    filename = os.path.join(self.Constants.DATA_DIR.value, name)
+                    filename = os.path.join(Constants.DATA_DIR.value, name)
                     cv2.imwrite(filename, img)
                     pbar.update(1)
         new_csv.to_csv(os.path.join(synthesized_dir, 'synthesized_' + data_dir_name + '.csv'), index=False)
