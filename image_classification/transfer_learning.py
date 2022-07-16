@@ -15,18 +15,17 @@ import pandas as pd
 from datetime import datetime
 import json
 from torch.autograd import Variable
-from src.recycling_dataset import RecyclingDataset
+from image_classification.recycling_dataset import RecyclingDataset
 import warnings
 warnings.simplefilter("ignore", UserWarning)
-from src.stratified_batch import StratifiedBatchSampler
-from src.decision_accuracy import DecisionAccuracy
+from image_classification.stratified_batch import StratifiedBatchSampler
+from image_classification.decision_accuracy import DecisionAccuracy
+from image_classification.Constants import Constants
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-STORE_DIR = "/cvhci/temp/p22g5/"
-HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
 cudnn.benchmark = True
 
 
@@ -34,9 +33,6 @@ class TransferLearningTrainer:
     """
     Class for training classification model with Transfer Learning
     """
-    
-    DATA_DIR = STORE_DIR + "data/"  # input data directory
-
     def __init__(self, data_transforms=None, batch_size=32, shuffle=True, num_workers=4, sos='', save_results=False, config=None, synthetic=True):
         self.sos = (sos, '')
         self.synthetic = synthetic
@@ -51,7 +47,7 @@ class TransferLearningTrainer:
             with open(self.store_dir + 'config.json', 'w') as f:
                 json.dump(config, f)
         else:
-            self.store_dir = STORE_DIR
+            self.store_dir = Constants.STORE_DIR.value
         if data_transforms is None:
             self._create_data_transforms_default()
         else:
@@ -87,14 +83,14 @@ class TransferLearningTrainer:
         Create image datasets
         :return:
         """
-        self.image_datasets = {x: datasets.ImageFolder(os.path.join(self.DATA_DIR, self.sos, x),
+        self.image_datasets = {x: datasets.ImageFolder(os.path.join(Constants.DATA_DIR.value, self.sos, x),
                                                        self.data_transforms[x])
                                for x in ['train', 'test']}
         self.class_names = self.image_datasets['train'].classes
 
     def _create_recycling_image_datasets(self):
-        self.image_datasets = {x: RecyclingDataset(os.path.join(HOME_DIR, "data", self.sos[i], x + ".csv"),
-                                                   self.DATA_DIR,
+        self.image_datasets = {x: RecyclingDataset(os.path.join(Constants.PROJECT_DIR.value, "data", self.sos[i], x + ".csv"),
+                                                   Constants.DATA_DIR.value,
                                                    self.data_transforms[x],
                                                    sos=self.sos[0],
                                                    synthetic=self.synthetic)
@@ -128,7 +124,7 @@ class TransferLearningTrainer:
         time = datetime.now()
         folder_name = time.strftime('%Y-%m-%d_%H-%M-%S/')
         self.result['timestamp'] = time
-        path = STORE_DIR + 'experiments/' + folder_name
+        path = Constants.STORE_DIR.value + 'experiments/' + folder_name
         os.makedirs(path)
         os.makedirs(path + 'model')
         os.makedirs(path + 'images')
@@ -504,7 +500,7 @@ class TransferLearningTrainer:
                         print(f'must be {labels[j]}, but predicted {self.class_names[preds[j]]}')
                         
     def update_results(self):
-        df_results = pd.read_csv(HOME_DIR + "data/results.csv")
+        df_results = pd.read_csv(Constants.PROJECT_DIR.value + "data/results.csv")
         df_results = pd.concat([df_results, pd.DataFrame.from_records([self.result])], ignore_index=True)
-        df_results.to_csv(HOME_DIR + "data/results.csv", index=False)
+        df_results.to_csv(Constants.PROJECT_DIR.value + "data/results.csv", index=False)
         

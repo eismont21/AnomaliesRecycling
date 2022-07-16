@@ -11,13 +11,8 @@ from random import randint, shuffle
 from skimage.util import random_noise
 from pathlib import Path
 from data_augmentation.coco_annotations import create_coco_json
+from image_classification.Constants import Constants
 
-STORE_DIR = "/cvhci/temp/p22g5/"
-HOME_DIR = "/home/p22g5/AnomaliesRecycling/"
-#STORE_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/POLYSECURE/"
-#HOME_DIR = "/home/dmitrii/GitHub/AnomaliesRecycling/"
-#STORE_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/data/copy_and_paste"
-#HOME_DIR = "C:/Users/Charlotte Goos/Documents/university/ss_22/Praktikum_CVHCI/AnomaliesRecycling/"
 
 TEST_INDEXES = [920, 574, 33, 372, 471, 344, 272, 322, 1069, 693, 621, 1025, 541, 780, 861, 194, 167, 990, 642, 585, 552, 1000, 155, 571, 230, 303, 681, 7, 149, 1, 400, 650, 59, 834, 798, 938, 649, 795, 604, 755, 699, 284, 212, 97, 919, 712, 119, 695, 355, 1028, 378, 1049, 198, 684, 1060, 772, 548, 639, 555, 1035, 380, 749, 813, 652, 669, 778, 595, 540, 619, 884, 363, 22, 74, 914, 891, 516, 101, 764, 629, 342, 887, 377, 449, 1019, 763, 845, 66, 961, 888, 597, 370, 151, 267, 104, 1010, 917, 113, 1020, 316, 796, 521, 515, 677, 398, 568, 491, 878, 768, 468, 199, 13, 75, 704, 663, 357, 577, 15, 319, 462, 640, 453, 831, 388, 249, 765, 489, 391, 821, 305, 384, 881, 864, 857, 387, 367, 851, 123, 951, 626, 409, 88, 1040, 1023, 83, 724, 986, 636, 943, 4, 847, 21, 40, 751, 605, 824, 815, 610, 912, 218, 1061, 1070, 368, 144, 952, 3, 191, 229, 507, 707, 921, 438, 495, 508, 989, 454, 310, 326, 551, 812, 186, 958, 890, 1055, 461, 627, 576, 512, 122, 1062, 732, 1018, 996, 586, 686, 259, 379, 630, 895, 108, 915, 983, 125, 714, 691, 717, 1036, 759, 899, 257, 302, 874, 128, 725, 911, 689]
 
@@ -26,7 +21,7 @@ class DataAugmentation:
     """
     Class for Data Augmentation
     """
-    def __init__(self, data_dir, zero_lid_dir, one_lid_dir):
+    def __init__(self, zero_lid_dir, one_lid_dir):
         """
         Constructor for the class
         :param data_dir: directory with images
@@ -35,9 +30,8 @@ class DataAugmentation:
         :param one_lid_dir: filename of csv file with images that have only one lid
         for generating of other synthesized images
         """
-        self.DATA_DIR = os.path.join(STORE_DIR, data_dir)
-        self.empty_trays = pd.read_csv(os.path.join(HOME_DIR, zero_lid_dir))
-        self.one_lids = pd.read_csv(os.path.join(HOME_DIR, one_lid_dir))
+        self.empty_trays = pd.read_csv(os.path.join(Constants.PROJECT_DIR.value, zero_lid_dir))
+        self.one_lids = pd.read_csv(os.path.join(Constants.PROJECT_DIR.value, one_lid_dir))
         #self.split_randomly(n=len(self.one_lids), p=0.2)
         self.split_randomly2(len(self.one_lids))
         self.STANDARD_RESOLUTION = (600, 800)
@@ -95,7 +89,7 @@ class DataAugmentation:
         print('Generating and saving masks for images')
         with tqdm(total=len(self.one_lids), ncols=100) as pbar:
             for index, row in self.one_lids.iterrows():
-                image_path = os.path.join(self.DATA_DIR, row['name'])
+                image_path = os.path.join(self.Constants.DATA_DIR.value, row['name'])
                 img = cv2.imread(image_path)
                 tags = self.one_lids.iloc[[index]]
                 augm_img = AugmentationImage(img, tags)
@@ -151,7 +145,7 @@ class DataAugmentation:
         """
         i = randint(0, len(self.empty_trays)-1)
         empty_tray_name = self.empty_trays.iloc[i]['name']
-        empty_tray_path = os.path.join(self.DATA_DIR, empty_tray_name)
+        empty_tray_path = os.path.join(self.Constants.DATA_DIR.value, empty_tray_name)
         empty_tray = cv2.imread(empty_tray_path)
         return empty_tray
     
@@ -308,7 +302,7 @@ class DataAugmentation:
         :return:
         """
         new_csv = pd.DataFrame()
-        synthesized_dir = os.path.join(self.DATA_DIR, self.synthesize_dir)
+        synthesized_dir = os.path.join(self.Constants.DATA_DIR.value, self.synthesize_dir)
         annotations_dir = os.path.join(synthesized_dir, 'annotations_' + data_dir_name)
         data_dir = os.path.join(synthesized_dir, data_dir_name)
         Path(synthesized_dir).mkdir(exist_ok=True)
@@ -328,7 +322,7 @@ class DataAugmentation:
                     name = os.path.join(data_dir, img_name)
                     df.at[0, 'name'] = name
                     new_csv = pd.concat([new_csv, df], ignore_index=True)
-                    filename = os.path.join(self.DATA_DIR, name)
+                    filename = os.path.join(self.Constants.DATA_DIR.value, name)
                     cv2.imwrite(filename, img)
                     pbar.update(1)
         new_csv.to_csv(os.path.join(synthesized_dir, 'synthesized_' + data_dir_name + '.csv'), index=False)
