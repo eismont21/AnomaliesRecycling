@@ -324,7 +324,7 @@ class DataAugmentation:
                     img_name = img_id + ".jpg"
                     for j in range(len(bin_masks)):
                         bin_name = os.path.join(annotations_dir, img_id + '_' + 'lid' + '_' + str(j) + '.jpg')
-                        cv2.mwrite(bin_name, bin_masks[j])
+                        cv2.imwrite(bin_name, bin_masks[j])
                     name = os.path.join(data_dir, img_name)
                     df.at[0, 'name'] = name
                     new_csv = pd.concat([new_csv, df], ignore_index=True)
