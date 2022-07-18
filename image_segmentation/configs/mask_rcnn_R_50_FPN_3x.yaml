@@ -10,4 +10,4 @@ DATASETS:
   #SOLVER:
   #  STEPS: (210000, 250000)
   #  MAX_ITER: 270000
-OUTPUT_DIR: "/home/p22g5/AnomaliesRecycling/output_segmentation/"
+OUTPUT_DIR: "/cvhci/temp/p22g5/segmentation_experiments/"

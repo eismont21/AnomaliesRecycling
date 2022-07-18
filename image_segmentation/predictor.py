@@ -1,49 +1,76 @@
+IM_ROOT_DIR = "/cvhci/temp/p22g5/data/"
 from detectron2.utils.visualizer import ColorMode
 import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
 from detectron2.engine import DefaultPredictor
 import cv2
 from detectron2.utils.visualizer import Visualizer
-import random
 import matplotlib.pyplot as plt
-from detectron2.data import MetadataCatalog, DatasetCatalog
+from detectron2.data import MetadataCatalog
 
-from train_net import setup, ROOT_DIR
 
+from image_segmentation.train_net import setup
+import pandas as pd
 from detectron2.utils.logger import setup_logger
 setup_logger()
-from detectron2.engine import default_argument_parser
 
 
+def predict_and_evaluate(weights_path, test_labels, thresh_test=0.5):
+    """
+    Predicts the number of objects on the image for the test dataset
+    :param weights_path: path to the detectron2 weights model
+    :param test_labels: path to the test labels
+    :param thresh_test: the score threshold test, the more, the more certain is the prediction
+    :return: dataframe of form (filename, count, prediction)
+    """
+    cfg = setup()
+    print("WEIGHTS = ", weights_path)
+    cfg.MODEL.WEIGHTS = weights_path
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = thresh_test
+    predictor = DefaultPredictor(cfg)
+    results = []
+    for i, row in test_labels.iterrows():
+        filename = row['name']
+        label = row['count']
+        im = cv2.imread(os.path.join(IM_ROOT_DIR, filename))
+        outputs = predictor(im)
+        prediction = len(outputs['instances'])
+        new_row = {'name': filename, 'count': label, 'prediction': prediction}
+        results.append(new_row)
+    return pd.DataFrame.from_records(results)
 
-def predict():
-    cfg = setup(args)
-    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-    cfg.DATASETS.TEST = ("microcontroller_test", )
+
+def predict_and_visualize(weights_path, thresh_test, results, show_label=1):
+    """
+    Visualize the special labels
+    :param weights_path: path to the detectron2 weights model
+    :param thresh_test: the score threshold test, the more, the more certain is the prediction
+    :param results: got from the function :predict_and_evaluate
+    :param show_label: ground truth label to show
+    """
+    cfg = setup()
+    cfg.MODEL.WEIGHTS = weights_path
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = thresh_test
     predictor = DefaultPredictor(cfg)
 
-
-    dataset_dicts = get_polysecure_dicts('Microcontroller Segmentation/test')
-    for d in random.sample(dataset_dicts, 3):
-        im = cv2.imread(d["file_name"])
+    for i, row in results.iterrows():
+        filename = row['name']
+        label = row['count']
+        im = cv2.imread(os.path.join(IM_ROOT_DIR, filename))
         outputs = predictor(im)
-        v = Visualizer(im[:, :, ::-1],
-                       metadata=MetadataCatalog.get(cfg.DATASETS.TRAIN[0]),
-                       scale=0.8,
-                       instance_mode=ColorMode.IMAGE_BW)
-        v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-        plt.figure(figsize = (14, 10))
-        plt.imshow(cv2.cvtColor(v.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB))
-        plt.show()
+        prediction = len(outputs['instances'])
+        if label == show_label:
+            print("LABEL = ", label, "PREDICTED = ", prediction, "FILENAME = ", filename)
+            metadata = MetadataCatalog.get("polysecure_dataset_test")
+            metadata.thing_classes=['Lid']
+            v = Visualizer(im[:, :, ::-1],
+                           metadata = metadata,
+                           scale=0.8,
+                           instance_mode=ColorMode.IMAGE_BW)
+            v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+            plt.figure(figsize = (14, 10))
+            plt.imshow(cv2.cvtColor(v.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB))
+            plt.grid(False)
+            plt.show()
 
-
-def get_polysecure_dicts(directory):
-    return {}
-
-
-if __name__ == "__main__":
-    parser = default_argument_parser()
-    parser.add_argument("--im_name", type=str, help="Visualize the prediction for the image", default="samplevalid")
-    args = parser.parse_args()
-    print("Command Line Args:", args)
-    predict()

@@ -71,7 +71,7 @@ class AugmentationImage:
             self.calculate_object_mask()
         return self.object_mask
 
-    def copy_and_paste(self, background, x_center, y_center, angle, change_color, make_dark):
+    def copy_and_paste(self, background, x_center, y_center, angle, change_color, make_dark, transparent):
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
         # crop this BB to get only the lid
         binary_mask, fg = self.get_rotated_object(x, y, w, h, angle, change_color)
@@ -102,6 +102,7 @@ class AugmentationImage:
         # tutorial start
         # small_img is cropped_object, large_img is background
         bg = cv2.bitwise_or(roi, roi, mask=binary_mask)
+        fg = self.get_transparent_object(binary_mask, roi, fg, transparent)
         final_roi = cv2.add(bg, fg)
         cropped_object = final_roi
         background[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down] = cropped_object
@@ -109,6 +110,13 @@ class AugmentationImage:
         bin_mask[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down] = binary_mask
 
         return background, bin_mask
+
+    def get_transparent_object(self, binary_mask, roi, fg, transparent):
+        if transparent:
+            mask_inv = cv2.cvtColor(cv2.bitwise_not(binary_mask), cv2.COLOR_GRAY2RGB)
+            bg_fg = cv2.bitwise_and(mask_inv, roi)
+            fg = cv2.addWeighted(bg_fg, 0.4, fg, 0.6, 0)
+        return fg
 
     def get_rotated_object(self, x, y, w, h, angle, change_color):
         rotated_bin_inv = imutils.rotate_bound(cv2.bitwise_not(self.get_binary_mask()[y:y + h, x:x + w]), angle)

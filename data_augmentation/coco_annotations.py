@@ -7,44 +7,45 @@ from tqdm import tqdm
 from detectron2.structures import BoxMode
 from scipy.interpolate import splprep, splev
 
-INFO = {
-    'description': 'Synthesized Coco Dataset',
-    'url': '',
-    'version': '1.0',
-    'year': 2022,
-    'contributor': 'CVHCIPraktikum',
-    'date_created': datetime.datetime.utcnow().isoformat(' ')
-}
-LICENSES = [
-    {
-        'url': ' ',
-        'id': 1,
-        'name': ' '
-    }
-]
-CATEGORIES = [
-    {
-        'id': 1,
-        'name': 'Lid',
-        'supercategory': 'object'
-    }
-]
-
-coco_output = {
-    'info': INFO,
-    'licenses': LICENSES,
-    'categories': CATEGORIES,
-    'images': [],
-    'annotations': []
-}
-
 
 def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annotations):
-    image_id = 0
-    annotation_id = 0
+    # define the coco structure
+    info = {
+        'description': 'Synthesized Coco Dataset',
+        'url': '',
+        'version': '1.0',
+        'year': 2022,
+        'contributor': 'CVHCIPraktikum',
+        'date_created': datetime.datetime.utcnow().isoformat(' ')
+    }
+    licenses = [
+        {
+            'url': ' ',
+            'id': 1,
+            'name': ' '
+        }
+    ]
+    categories = [
+        {
+            'id': 1,
+            'name': 'Lid',
+            'supercategory': 'object'
+        }
+    ]
+
+    coco_output = {
+        'info': info,
+        'licenses': licenses,
+        'categories': categories,
+        'images': [],
+        'annotations': []
+    }
+
     with tqdm(total=n_annotations, ncols=100) as pbar:
+        image_id = -1
+        annotation_id = -1
         for filename in [file for file in os.listdir(image_dir) if file.endswith('.jpg')]:
-            jpg_image = os.path.join(image_dir, filename)
+            image_id += 1
             image_name = os.path.splitext(filename)[0]
             image_info = {
                 'id': image_id,
@@ -53,7 +54,9 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 'height': 600
             }
             coco_output['images'].append(image_info)
-            for annotation_name in [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name == annotation.split('_lid')[0]]:
+            annotation_names = [annotation for annotation in os.listdir(annotation_dir) if annotation.endswith('jpg') and image_name == annotation.split('_lid')[0]]
+            for annotation_name in annotation_names:
+                annotation_id += 1
                 jpg_annotation = os.path.join(annotation_dir, annotation_name)
                 annotation_image = cv2.imread(jpg_annotation, flags=cv2.IMREAD_GRAYSCALE)
                 annotation_image = cv2.bitwise_not(annotation_image)
@@ -62,6 +65,8 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 try:
                     contour = contours[0]
                 except IndexError:
+                    annotation_id -= 1
+                    print('coco annotations index -1')
                     continue
                 x, y = contour.T
                 x = x.tolist()[0]
@@ -92,10 +97,8 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
                 }
     
                 coco_output['annotations'].append(annotation_info)
-                annotation_id += 1
                 pbar.update(1)
                 #print("annotaion_id = ", annotation_id)
-            image_id += 1
     json_string = json.dumps(coco_output, indent=4)
     json_path = os.path.join(root_dir, anno_filename + '.json')
     if os.path.isfile(json_path):
