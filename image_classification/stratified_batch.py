@@ -21,6 +21,7 @@ class StratifiedBatchSampler:
         self.X = torch.randn(len(y), 1).numpy()
         self.y = y
         self.shuffle = shuffle
+        self.batch_size = batch_size
 
     def __iter__(self):
         for train_idx, test_idx in self.skf.split(self.X, self.y):

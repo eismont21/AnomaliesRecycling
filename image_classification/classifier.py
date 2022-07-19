@@ -21,6 +21,7 @@ warnings.filterwarnings("ignore")
 from image_classification.stratified_batch import StratifiedBatchSampler
 from image_classification.decision_accuracy import DecisionAccuracy
 from image_classification.constants import Constants
+from image_classification.early_stop import EarlyStopping
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"  # specify which GPU(s) to be used
@@ -165,10 +166,6 @@ class PolysecureClassifier:
         if not model_name:
             model_name = model.__class__.__name__
         model.to(DEVICE)
-        if early_stopping:
-            trigger_times = 0
-            patience = scheduler.step_size + 1
-            last_loss = 100
 
         dataset_sizes = {x: len(self.image_datasets[x]) for x in ["train", "test"]}
         writer = SummaryWriter(self.store_dir + "tensorboard")
@@ -178,6 +175,8 @@ class PolysecureClassifier:
         best_model_wts = copy.deepcopy(model.state_dict())
         best_acc, best_r2, best_de_acc = 0.0, 0.0, 0.0
         best_mae, best_mse = 1.0, 1.0
+        
+        early_stop = EarlyStopping(patience=3, verbose=early_stopping, path=self.store_dir + "model/")
 
         since = time.time()
 
@@ -277,22 +276,13 @@ class PolysecureClassifier:
                         best_mse = epoch_mse
                         best_r2 = epoch_r2
                         best_model_wts = copy.deepcopy(model.state_dict())
+                
 
-                # Early Stopping
-                if early_stopping and phase == "test":
-                    if epoch_loss > last_loss:
-                        trigger_times += 1
-                        print("Trigger Times:", trigger_times)
-
-                        if trigger_times >= patience:
-                            print("Early stopping!")
-                            break
-
-                    else:
-                        print("trigger times: 0")
-                        trigger_times = 0
-
-                last_loss = epoch_loss
+            early_stop(epoch_de_acc, model)
+        
+            if early_stopping and early_stop.early_stop:
+                print("Early stopping")
+                break
 
             print()
 
