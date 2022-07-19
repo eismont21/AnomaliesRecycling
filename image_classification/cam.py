@@ -10,6 +10,7 @@ class CAM:
     Class Activation Map
     Better understanding of the results
     """
+
     def __init__(self, trainer):
         """
         Constructor.
@@ -24,28 +25,40 @@ class CAM:
         :return:
         """
         import random
-        i = random.randint(0, len(self.trainer.image_datasets['test']))
-        print(self.trainer.image_datasets['test'][i]['img_path'])
+
+        i = random.randint(0, len(self.trainer.image_datasets["test"]))
+        print(self.trainer.image_datasets["test"][i]["img_path"])
         model = model_ft
-        x = self.trainer.image_datasets['test'][i]['image'].unsqueeze(0)
-        label = self.trainer.image_datasets['test'][i]['label']
+        x = self.trainer.image_datasets["test"][i]["image"].unsqueeze(0)
+        label = self.trainer.image_datasets["test"][i]["label"]
         # Grad-CAM backprop.
-        input = self.trainer.image_datasets['test'][i]['image']
+        input = self.trainer.image_datasets["test"][i]["image"]
         output = model_ft(input.unsqueeze(0))
         _, pred = torch.max(output, 1)
         prediction = pred.detach().numpy()[0]
-        saliency = grad_cam(model, x, label, saliency_layer='layer4.1.conv2', resize=True)
-        self.plot_example_custom(x, saliency, 'grad-cam backprop', label, prediction, self.trainer.class_names)
+        saliency = grad_cam(
+            model, x, label, saliency_layer="layer4.1.conv2", resize=True
+        )
+        self.plot_example_custom(
+            x,
+            saliency,
+            "grad-cam backprop",
+            label,
+            prediction,
+            self.trainer.class_names,
+        )
 
     @staticmethod
-    def plot_example_custom(input,
-                            saliency,
-                            method,
-                            category_id,
-                            prediction,
-                            class_names,
-                            show_plot=False,
-                            save_path=None):
+    def plot_example_custom(
+        input,
+        saliency,
+        method,
+        category_id,
+        prediction,
+        class_names,
+        show_plot=False,
+        save_path=None,
+    ):
         """
         Plot an example. Custom version of the :class:`torchray.benchmark.plot_example`
 
@@ -60,6 +73,7 @@ class CAM:
         :return: shows heatmap
         """
         from torchray.utils import imsc
+
         category_id = category_id.item()
         if isinstance(category_id, int):
             category_id = [category_id]
@@ -71,12 +85,16 @@ class CAM:
 
             plt.subplot(batch_size, 2, 1 + 2 * i)
             imsc(input[i])
-            plt.title('input image', fontsize=8)
+            plt.title("input image", fontsize=8)
 
             plt.subplot(batch_size, 2, 2 + 2 * i)
-            imsc(saliency[i], interpolation='none')
-            plt.title('{} for label {} (predicted {})'.format(
-                method, class_names[class_i], prediction), fontsize=8)
+            imsc(saliency[i], interpolation="none")
+            plt.title(
+                "{} for label {} (predicted {})".format(
+                    method, class_names[class_i], prediction
+                ),
+                fontsize=8,
+            )
 
         # Save figure if path is specified.
         if save_path:
@@ -84,8 +102,8 @@ class CAM:
             # Create directory if necessary.
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
-            ext = os.path.splitext(save_path)[1].strip('.')
-            plt.savefig(save_path, format=ext, bbox_inches='tight')
+            ext = os.path.splitext(save_path)[1].strip(".")
+            plt.savefig(save_path, format=ext, bbox_inches="tight")
 
         # Show plot if desired.
         if show_plot:

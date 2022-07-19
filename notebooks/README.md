@@ -8,4 +8,4 @@
 | Instance Segmentation | Evaluate and visualize instance segmentation model on the real-world dataset | 
 | PlotsSegmentation     |               Plot statistics for instance segmentation model                |
 | TrainTestSplit        |                                    Sascha                                    |
-| TransferLearing       |                                    Sascha                                    | 
+| TransferLearning      |                                    Sascha                                    | 

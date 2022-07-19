@@ -4,18 +4,20 @@ from sklearn.model_selection import StratifiedKFold
 
 class StratifiedBatchSampler:
     """
-    Stratified batch sampling
-    Provides equal representation of target classes in each batch
+    Custom batch sampler generates batches by preserving the percentage of samples for each target class.
     """
 
     def __init__(self, y, batch_size, shuffle=True, random_state=42):
-        if torch.is_tensor(y):
-            y = y.cpu().numpy()
-        #print(len(y.shape))
-        #print(y)
-        assert len(y.shape) == 1, 'label array must be 1D'
+        """
+        :param y: target class labels
+        :param batch_size: batch size
+        :param shuffle: indicator of shuffling data
+        :param random_state: random state
+        """
         n_batches = int(len(y) / batch_size)
-        self.skf = StratifiedKFold(n_splits=n_batches, shuffle=shuffle, random_state=random_state)
+        self.skf = StratifiedKFold(
+            n_splits=n_batches, shuffle=shuffle, random_state=random_state
+        )
         self.X = torch.randn(len(y), 1).numpy()
         self.y = y
         self.shuffle = shuffle

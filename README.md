@@ -5,7 +5,7 @@ Polymer Recycling" is done in scope of the practical course Computer Vision
 for Human-Computer Interaction at Karlsruhe Institute of Technology.
 
 The main purpose of the project is counting the number of plastic lids 
-in trays. Two main approaches are investigated: image classification and 
+in trays and identification of singulation anomalies. Two main approaches are investigated: image classification and 
 instance segmentation. The performance of both ones is boosted by 
 synthesized data generated using data augmentation, 
 especially copy and paste method.
