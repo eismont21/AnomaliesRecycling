@@ -168,6 +168,7 @@ class DataAugmentation:
         """
         Generate one synthesized image with copy and paste method.
         :param label: number of objects
+        :param noise_background: add noise to the image with label 0 (background)
         :param rotate: rotate the inserted object with random angle
         :param change_color: change color of inserted object
         :param make_dark: make the inserted object dark
@@ -264,6 +265,13 @@ class DataAugmentation:
         return background, df, object_binary_masks
     
     def _check_overlap(self, bbs, bb_new, tol):
+        """
+        Countour-based overlapping checking
+        :param bbs: list of objects already added to the synthesized image
+        :param bb_new: candidate to add
+        :param tol: tolerance, the percent of overlapping of any twp objects
+        :return: if the object can be inserted and the object itself
+        """
         flag = False
         bbs_new = []
         if bb_new['overlapped'] > tol:
@@ -303,6 +311,7 @@ class DataAugmentation:
         """
         Generate synthesized images. Main method in the class.
         :param classes: which images to synthesize e.g. {1: 2} synthesizes 2 images with 1 object
+        :param noise_background: add noise to the image with label 0 (background)
         :param rotate: rotate the inserted object with random angle
         :param change_color: change color of inserted object
         :param make_edge: allows creating object in the edges
