@@ -50,6 +50,7 @@ class DataAugmentation:
                                "synthesized"]
         self.iou_tolerance = 0.8
         self.iou_bound = 0.01
+        self.noise_background_probability = 0.15
         self.rotate_case_probability = 0.5
         self.change_color_case_probability = 0.15
         self.edge_case_probability = 0.05
@@ -163,7 +164,7 @@ class DataAugmentation:
             i = randint(0, len(self.masks) - 1)
         return i
 
-    def copy_and_paste(self, label, rotate, change_color, make_edge, make_dark, make_transparent, pick_from='all'):
+    def copy_and_paste(self, label, noise_background, rotate, change_color, make_edge, make_dark, make_transparent, pick_from='all'):
         """
         Generate one synthesized image with copy and paste method.
         :param label: number of objects
@@ -182,9 +183,19 @@ class DataAugmentation:
         img_name = "label_" + str(label) + "_" + "img_" + str(0) + ".jpg"
         name = os.path.join(self.synthesize_dir, img_name)
         if label == 0:
-            return self.get_noise_img(background), \
+            flag_noise_background = False
+            if noise_background:
+                flag_noise_background = random.random() < self.noise_background_probability
+            if flag_noise_background:
+                img = self.get_noise_img(background)
+            else:
+                img = background
+            return img, \
                    pd.DataFrame([[name, 0, 0, np.nan, np.nan, 0, 0, 0, 0, 0, 1]], columns=self.inherited_tags), \
                    object_binary_masks
+            #return self.get_noise_img(background), \
+            #       pd.DataFrame([[name, 0, 0, np.nan, np.nan, 0, 0, 0, 0, 0, 1]], columns=self.inherited_tags), \
+            #       object_binary_masks
         bbs = []
         for j in range(label):
             while True:
@@ -288,7 +299,7 @@ class DataAugmentation:
                 else:
                     result.iloc[0][tag] = int(result.iloc[0][tag]) or int(new.iloc[0][tag])
 
-    def generate(self, classes, rotate=True, change_color=False, make_edge=False, make_dark=False, make_transparent=False, coco_annotation=True, data_dir_name='data'):
+    def generate(self, classes, noise_background=True, rotate=True, change_color=False, make_edge=False, make_dark=False, make_transparent=False, coco_annotation=True, data_dir_name='data'):
         """
         Generate synthesized images. Main method in the class.
         :param classes: which images to synthesize e.g. {1: 2} synthesizes 2 images with 1 object
@@ -312,7 +323,7 @@ class DataAugmentation:
         with tqdm(total=sum(classes.values()), ncols=100) as pbar:
             for label in classes:
                 for i in range(classes[label]):
-                    img, df, bin_masks = self.copy_and_paste(label, rotate, change_color,
+                    img, df, bin_masks = self.copy_and_paste(label, noise_background, rotate, change_color,
                                                              make_edge, make_dark, make_transparent, data_dir_name)
                     img_id = "label_" + str(label) + "_" + "img_" + str(i)
                     img_name = img_id + ".jpg"
