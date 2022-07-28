@@ -356,7 +356,7 @@ class DataAugmentation:
     @staticmethod
     def get_noise_img(img, mode='gaussian'):
         """
-        Add noise to the image noisy image.
+        Add noise to the image.
         :param img: input image
         :param mode: type of noise
         :return: image with noise
