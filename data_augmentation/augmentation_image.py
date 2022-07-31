@@ -7,8 +7,15 @@ import random
 
 
 class AugmentationImage:
-    #Only make augmentation images with images from the one_lid.csv file
+    """
+    Class for Image of Object that is copied & pasted
+    """
     def __init__(self, image, tags):
+        """
+       Constructor for the class
+       :param image: image of object
+       :param tags: tags of image in
+       """
         self.image = image
         self.tags = tags
         self.cnt = None
@@ -16,6 +23,9 @@ class AugmentationImage:
         self.object_mask = None
 
     def calculate_contour(self):
+        """
+        Calculates contour of object
+        """
         image_center = (self.image.shape[0] / 2, self.image.shape[1] / 2)
         image_gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
         image_filtered = cv2.bilateralFilter(image_gray, 9, 75, 75)
@@ -41,6 +51,9 @@ class AugmentationImage:
         return
 
     def calculate_binary_mask(self):
+        """
+        Calculates binary mask of object
+        """
         if self.cnt is None:
             self.calculate_contour()
         mask_inv = np.zeros((600, 800), np.uint8)
@@ -49,6 +62,9 @@ class AugmentationImage:
         return
 
     def calculate_object_mask(self):
+        """
+        Calculates object mask (image of object on black background)
+        """
         if self.cnt is None:
             self.calculate_contour()
         mask_inv = np.zeros((600, 800, 3), np.uint8)
@@ -57,21 +73,44 @@ class AugmentationImage:
         return
 
     def get_contour(self):
+        """
+        Calculates contour if necessary and returns it
+        return: contour of object
+        """
         if self.cnt is None:
             self.calculate_contour()
         return self.cnt
 
     def get_binary_mask(self):
+        """
+        Calculates binary mask if necessary and returns it
+        return: binary mask of object
+        """
         if self.binary_mask is None:
             self.calculate_binary_mask()
         return self.binary_mask
 
     def get_object_mask(self):
+        """
+        Calculates object mask (image of object on black background) if necessary and returns it
+        return: object mask
+        """
         if self.object_mask is None:
             self.calculate_object_mask()
         return self.object_mask
 
     def copy_and_paste(self, background, x_center, y_center, angle, change_color, make_dark, transparent):
+        """
+        Pastes object to a background
+        param background: image of background
+        param x_center: TODO
+        param y_center: TODO
+        param angle: angle with which object is rotated before insertion
+        param change_color: tag which decides if the object color is changed
+        param make_dark: tag which decides if object is made dark
+        param transparent: tag which decides if object is made transparent
+        return: new image with object pasted to background, binary mask of object with rotation and new position
+        """
         x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
         # crop this BB to get only the lid
         binary_mask, fg = self.get_rotated_object(x, y, w, h, angle, change_color)
@@ -95,14 +134,12 @@ class AugmentationImage:
             y_new_left_up = 0
         if y_new_right_down > 600:
             y_binary_mask_right_down -= y_new_right_down - 600
-            y_new_right_down = 600  
+            y_new_right_down = 600
         roi = background[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down]
         binary_mask = binary_mask[y_binary_mask_left_up:y_binary_mask_right_down, x_binary_mask_left_up:x_binary_mask_right_down]
         fg = fg[y_binary_mask_left_up:y_binary_mask_right_down, x_binary_mask_left_up:x_binary_mask_right_down]
-        # tutorial start
-        # small_img is cropped_object, large_img is background
         bg = cv2.bitwise_or(roi, roi, mask=binary_mask)
-        fg = self.get_transparent_object(binary_mask, roi, fg, transparent)
+        fg = self._get_transparent_object(binary_mask, roi, fg, transparent)
         final_roi = cv2.add(bg, fg)
         cropped_object = final_roi
         background[y_new_left_up: y_new_right_down, x_new_left_up:x_new_right_down] = cropped_object
@@ -111,7 +148,7 @@ class AugmentationImage:
 
         return background, bin_mask
 
-    def get_transparent_object(self, binary_mask, roi, fg, transparent):
+    def _get_transparent_object(self, binary_mask, roi, fg, transparent):
         if transparent:
             mask_inv = cv2.cvtColor(cv2.bitwise_not(binary_mask), cv2.COLOR_GRAY2RGB)
             bg_fg = cv2.bitwise_and(mask_inv, roi)
@@ -119,12 +156,26 @@ class AugmentationImage:
         return fg
 
     def get_rotated_object(self, x, y, w, h, angle, change_color):
+        """
+        Rotates object with given angle and changes color if tag is set
+        param x: x coordinate of lower left corner of object bounding box
+        param y: y coordinate of lower left corner of object bounding box
+        param w: width of object bounding box
+        param h: height of object bounding box
+        param angle: angle with which to rotate object
+        param change_color: tag which determines if color of object is changed
+        """
         rotated_bin_inv = imutils.rotate_bound(cv2.bitwise_not(self.get_binary_mask()[y:y + h, x:x + w]), angle)
         rotated_bin = cv2.bitwise_not(rotated_bin_inv)
         rotated_fg = imutils.rotate_bound(self.change_object_color(change_color)[y: y + h, x:x + w], angle)
         return rotated_bin, rotated_fg
 
     def change_object_color(self, change_color):
+        """
+        Changes color of object in object mask if tag is set
+        param change_color: tag which decides if color of object is changed
+        return: object mask of object with changed color
+        """
         if self.cnt is None:
             self.calculate_contour()
         is_change = randint(0, 1)
@@ -175,7 +226,7 @@ class AugmentationImage:
         mask_dic = {'size': cv2.countNonZero(mask), 
                     'mask': mask, 
                     'overlapped': 1.0 - cv2.countNonZero(mask)/cv2.countNonZero(mask_original)}
-        return mask_dic            
+        return mask_dic
 
     def rotate_contour(self, cnt, angle):
         def cart2pol(x, y):

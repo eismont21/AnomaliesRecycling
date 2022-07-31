@@ -9,6 +9,14 @@ from scipy.interpolate import splprep, splev
 
 
 def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annotations):
+    """
+    Creates annotations in coco format for instance segmentation saved in json file
+    param image_dir: directory of new synthetic images which need to be annotated
+    param annotation_dir: directory of binary mask of object in new synthetic images
+    param root_dir: root directory of new synthetic data
+    param anno_filename: name of new json annotation file
+    param n_annotations: number of annotations in new synthetic data
+    """
     # define the coco structure
     info = {
         'description': 'Synthesized Coco Dataset',
@@ -98,7 +106,6 @@ def create_coco_json(image_dir, annotation_dir, root_dir, anno_filename, n_annot
     
                 coco_output['annotations'].append(annotation_info)
                 pbar.update(1)
-                #print("annotaion_id = ", annotation_id)
     json_string = json.dumps(coco_output, indent=4)
     json_path = os.path.join(root_dir, anno_filename + '.json')
     if os.path.isfile(json_path):
