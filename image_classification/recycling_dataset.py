@@ -3,6 +3,7 @@ import pandas as pd
 from torchvision.io import read_image, ImageReadMode
 from torch.utils.data import Dataset
 import torch
+from image_classification.constants import Constants
 
 
 class RecyclingDataset(Dataset):
@@ -10,7 +11,7 @@ class RecyclingDataset(Dataset):
     Custom class for dataset.
     """
 
-    def __init__(self, csv_file, img_dir, transform=None, sos="", synthetic=True):
+    def __init__(self, csv_file, img_dir, transform=None, sos="", synthetic=False):
         """
         Initialize the dataset.
         :param csv_file: path to csv file with images paths and labels
@@ -22,8 +23,15 @@ class RecyclingDataset(Dataset):
         df = pd.read_csv(csv_file)
         if "test" in csv_file and sos != "":
             df["count"] = df["count"].apply(lambda x: 4 if x == 5 else x)
-        if "train" in csv_file and not synthetic:
-            df = df[~df["name"].str.contains("synthesized")]
+        if "train" in csv_file:
+            if synthetic:
+                df_synthesized = pd.read_csv(Constants.SYNTHESIZE_DIR.value + '/synthesized_train.csv')
+                df_synthesized['name'] = df_synthesized['name'].apply(lambda x: x[x.find('synthesized'):])
+                df = df[~df['name'].str.contains('synthesized')]
+                df = pd.concat([df, df_synthesized], ignore_index=True).fillna(0)
+                df['synthesized'] = df['synthesized'].astype(int)
+            else:
+                df = df[~df["name"].str.contains("synthesized")]
         self.img_labels = df
         self.img_dir = img_dir
         self.transform = transform

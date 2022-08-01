@@ -40,19 +40,21 @@ class PolysecureClassifier:
         batch_size=32,
         shuffle=True,
         num_workers=4,
-        sos="",
         save_results=False,
         config=None,
-        synthetic=True,
+        synthetic=False,
+        sos = ""
     ):
-        self.sos = (sos, "")
-        self.synthetic = synthetic
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.num_workers = num_workers
         self.save_results = save_results
+        self.sos = (sos, "")
+        self.synthetic = synthetic
         self.result = {}
         if self.save_results:
+            self.sos = (config['sos'], "")
+            self.synthetic = config['synthetic']
             self._create_store_folder()
             self.result.update(config)
             with open(self.store_dir + "config.json", "w") as f:
@@ -121,8 +123,6 @@ class PolysecureClassifier:
                     batch_size=self.batch_size,
                     shuffle=self.shuffle,
                 ),
-                # batch_size=self.batch_size,
-                # shuffle=self.shuffle,
                 num_workers=self.num_workers,
             )
             for i, x in enumerate(["train", "test"])
@@ -151,6 +151,7 @@ class PolysecureClassifier:
         num_epochs=12,
         model_name=None,
         early_stopping=True,
+        patience=20
     ):
         """
         Start model training
@@ -176,7 +177,7 @@ class PolysecureClassifier:
         best_acc, best_r2, best_de_acc = 0.0, 0.0, 0.0
         best_mae, best_mse = 1.0, 1.0
         
-        early_stop = EarlyStopping(patience=3, verbose=early_stopping, path=self.store_dir + "model/")
+        early_stop = EarlyStopping(patience=patience, verbose=early_stopping, path=self.store_dir + "model/")
 
         since = time.time()
 
@@ -299,9 +300,6 @@ class PolysecureClassifier:
         self.metrics = {
             "acc": best_acc.item(),
             "de_acc": best_de_acc.item(),
-            "mae": best_mae.item(),
-            "mse": best_mse.item(),
-            "r^2": best_r2.item(),
         }
         self.result.update(self.metrics)
 
@@ -318,6 +316,13 @@ class PolysecureClassifier:
         writer.close()
 
         return model
+    
+    def get_classes_weight(self):
+        y_train = self.image_datasets['train'].img_labels['count'].tolist()
+        class_sample_count = np.array([len(np.where(y_train == t)[0]) for t in np.unique(y_train)])
+        weight = 1. - class_sample_count / sum(class_sample_count)
+        weight = torch.tensor(weight, dtype=torch.float).to(DEVICE)
+        return weight
 
     @staticmethod
     def imshow(inp, title=None):
@@ -491,11 +496,7 @@ class PolysecureClassifier:
 
             for i, x in enumerate(self.confusion_diagonal):
                 self.result[str(i)] = x
-            df_confusion_diagonal = pd.DataFrame(
-                self.confusion_diagonal,
-                columns=range(len(self.confusion_diagonal)),
-                index=[0],
-            )
+            df_confusion_diagonal = pd.DataFrame.from_records(np.array(self.confusion_diagonal).reshape(-1,1)).transpose()
             df_confusion_diagonal.to_csv(
                 self.store_dir + "results/confusion_diagonal.csv", index=False
             )
