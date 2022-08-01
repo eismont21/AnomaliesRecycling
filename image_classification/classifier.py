@@ -318,6 +318,10 @@ class PolysecureClassifier:
         return model
     
     def get_classes_weight(self):
+        """
+        Get the classes weight for the loss function
+        :return: classes weight
+        """
         y_train = self.image_datasets['train'].img_labels['count'].tolist()
         class_sample_count = np.array([len(np.where(y_train == t)[0]) for t in np.unique(y_train)])
         weight = 1. - class_sample_count / sum(class_sample_count)
