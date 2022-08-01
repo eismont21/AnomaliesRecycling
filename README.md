@@ -10,6 +10,8 @@ instance segmentation. The performance of both ones is boosted by
 synthesized data generated using data augmentation, 
 especially copy and paste method.
 
+The qualitative and quantitative results can be found in the presentation and report in */materials/* folder
+
 ## Installation
 Install dependencies using anaconda.   
 ```bash

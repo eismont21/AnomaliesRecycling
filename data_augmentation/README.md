@@ -26,13 +26,15 @@ Then run *generate* method on this DataAugmentation object. You can switch on di
 
 For example the following code generates a new synthetic data set with 6 classes, 10 images in each class and all tags switched on:
 ````
-data_augmentation_object.generate(
-    classes={0:10, 1:10, 2:10, 3:10, 4:10, 5:10},
-    change_color=True,
-    make_edge=True,
-    make_dark=True,
-    make_transparent=True,
-    coco_annotation=True,
-    data_dir_name='data'
-)
+dataAugm.generate(
+    classes={0: 10, 1: 10, 2: 10, 3: 10, 4: 10, 5: 10}, 
+    noise_background=True, 
+    rotate=True, 
+    change_color=True, 
+    make_edge=True, 
+    make_dark=True, 
+    make_transparent=True, 
+    coco_annotation=True,  
+    data_dir_name='train'
+    )
 ````
