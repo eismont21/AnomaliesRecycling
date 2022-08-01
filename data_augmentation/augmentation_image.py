@@ -103,8 +103,8 @@ class AugmentationImage:
         """
         Pastes object to a background
         param background: image of background
-        param x_center: TODO
-        param y_center: TODO
+        param x_center: x coordinate of center of bounding box
+        param y_center: y coordinate of center of bounding box
         param angle: angle with which object is rotated before insertion
         param change_color: tag which decides if the object color is changed
         param make_dark: tag which decides if object is made dark
@@ -149,6 +149,14 @@ class AugmentationImage:
         return background, bin_mask
 
     def _get_transparent_object(self, binary_mask, roi, fg, transparent):
+        """
+        Helper function for pasting transparent object.
+        param binary_mask:
+        param roi: roi of background
+        param fg: roi of object mask
+        param transparent: determines wether object is transparent
+        return: transparent object
+        """
         if transparent:
             mask_inv = cv2.cvtColor(cv2.bitwise_not(binary_mask), cv2.COLOR_GRAY2RGB)
             bg_fg = cv2.bitwise_and(mask_inv, roi)
