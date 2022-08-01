@@ -10,12 +10,13 @@ class AugmentationImage:
     """
     Class for Image of Object that is copied & pasted
     """
+
     def __init__(self, image, tags):
         """
-       Constructor for the class
-       :param image: image of object
-       :param tags: tags of image in
-       """
+        Constructor for the class
+        :param image: image of object
+        :param tags: tags of image in
+        """
         self.image = image
         self.tags = tags
         self.cnt = None
@@ -30,8 +31,12 @@ class AugmentationImage:
         image_gray = cv2.cvtColor(self.image, cv2.COLOR_RGB2GRAY)
         image_filtered = cv2.bilateralFilter(image_gray, 9, 75, 75)
         threshold = 20
-        ret, thresh = cv2.threshold(src=image_filtered, thresh=threshold, maxval=255, type=cv2.THRESH_BINARY)
-        contours, hierarchy = cv2.findContours(image=thresh, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
+        ret, thresh = cv2.threshold(
+            src=image_filtered, thresh=threshold, maxval=255, type=cv2.THRESH_BINARY
+        )
+        contours, hierarchy = cv2.findContours(
+            image=thresh, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE
+        )
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
         distances = []
         for contour in contours:
@@ -42,7 +47,7 @@ class AugmentationImage:
                 center_X = int(M["m10"] / M["m00"])
                 center_Y = int(M["m01"] / M["m00"])
                 contour_center = (center_X, center_Y)
-                distances_to_center = (distance.euclidean(image_center, contour_center))
+                distances_to_center = distance.euclidean(image_center, contour_center)
                 if cv2.arcLength(contour, True) < 200:
                     distances_to_center = 1000
             distances.append(distances_to_center)
@@ -99,7 +104,16 @@ class AugmentationImage:
             self.calculate_object_mask()
         return self.object_mask
 
-    def copy_and_paste(self, background, x_center, y_center, angle, change_color, make_dark, transparent):
+    def copy_and_paste(
+        self,
+        background,
+        x_center,
+        y_center,
+        angle,
+        change_color,
+        make_dark,
+        transparent,
+    ):
         """
         Pastes object to a background
         param background: image of background
@@ -111,7 +125,7 @@ class AugmentationImage:
         param transparent: tag which decides if object is made transparent
         return: new image with object pasted to background, binary mask of object with rotation and new position
         """
-        x, y, w, h = cv2.boundingRect(self.cnt) # find BB from contour
+        x, y, w, h = cv2.boundingRect(self.cnt)  # find BB from contour
         # crop this BB to get only the lid
         binary_mask, fg = self.get_rotated_object(x, y, w, h, angle, change_color)
         if make_dark:
@@ -173,9 +187,13 @@ class AugmentationImage:
         param angle: angle with which to rotate object
         param change_color: tag which determines if color of object is changed
         """
-        rotated_bin_inv = imutils.rotate_bound(cv2.bitwise_not(self.get_binary_mask()[y:y + h, x:x + w]), angle)
+        rotated_bin_inv = imutils.rotate_bound(
+            cv2.bitwise_not(self.get_binary_mask()[y : y + h, x : x + w]), angle
+        )
         rotated_bin = cv2.bitwise_not(rotated_bin_inv)
-        rotated_fg = imutils.rotate_bound(self.change_object_color(change_color)[y: y + h, x:x + w], angle)
+        rotated_fg = imutils.rotate_bound(
+            self.change_object_color(change_color)[y : y + h, x : x + w], angle
+        )
         return rotated_bin, rotated_fg
 
     def change_object_color(self, change_color):
@@ -200,69 +218,103 @@ class AugmentationImage:
             object_mask_color = cv2.bitwise_and(mask_inv, color_object_image)
             return object_mask_color
 
-    def get_bb(self, background, x_center, y_center, angle, change_color):
-        x, y, w, h = cv2.boundingRect(self.cnt)  # find BB from contour
-        if not angle == 0:
-            rotated, _ = self.get_rotated_object(x, y, w, h, angle, change_color=change_color)
-            h, w = rotated.shape[0], rotated.shape[1]
-        x_offset = int(x_center - (w / 2))  # left up coord
-        y_offset = int(y_center - (h / 2))  # left up coord
-        assert x_offset > 0 and y_offset > 0, "negative coordinates"
-        # crop this BB to get only the lid
-        binary_mask = self.get_binary_mask()[y:y + h, x:x + w]
-        x_end = x_offset + binary_mask.shape[1]  # right down coord
-        y_end = y_offset + binary_mask.shape[0]  # right down coord
-        assert x_end < background.shape[1] and y_end < background.shape[0], "coordinates out of range"
-        return {'x1': x_offset, 'x2': x_end, 'y1': y_offset, 'y2': y_end}
-    
     def get_mask_dic(self, x, y, angle):
+        """
+        Create dictionary with mask of object, pixel-wise size and overlapped ration
+        :param x: x coordinate of lower left corner of object bounding box
+        :param y: y coordinate of lower left corner of object bounding box
+        :param angle: angle with which to rotate mask
+        :return: created dictionary
+        """
+
         def get_offset(x, y, countur):
+            """
+            Helper function for getting offset of object mask
+            :param x: x coordinate of lower left corner of object bounding box
+            :param y: y coordinate of lower left corner of object bounding box
+            :param countur: contour of object mask
+            :return: offset of object mask
+            """
             M = cv2.moments(countur)
             x_c, y_c = int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"])
             return x - x_c, y - y_c
-        
+
         countur = self.get_contour()
         if angle != 0:
             countur = self.rotate_contour(countur, angle)
-            
-        mask_original = cv2.drawContours(np.zeros((600, 800), np.uint8), [countur], -1, (255, 255, 255), thickness=-2,
-                                         lineType=cv2.LINE_AA)
-        
-        mask = cv2.drawContours(np.zeros((600, 800), np.uint8), [countur], -1, (255, 255, 255), 
-                                offset=get_offset(x, y, countur), thickness=-2, lineType=cv2.LINE_AA)
-        
-        mask_dic = {'size': cv2.countNonZero(mask), 
-                    'mask': mask, 
-                    'overlapped': 1.0 - cv2.countNonZero(mask)/cv2.countNonZero(mask_original)}
+
+        mask_original = cv2.drawContours(
+            np.zeros((600, 800), np.uint8),
+            [countur],
+            -1,
+            (255, 255, 255),
+            thickness=-2,
+            lineType=cv2.LINE_AA,
+        )
+
+        mask = cv2.drawContours(
+            np.zeros((600, 800), np.uint8),
+            [countur],
+            -1,
+            (255, 255, 255),
+            offset=get_offset(x, y, countur),
+            thickness=-2,
+            lineType=cv2.LINE_AA,
+        )
+
+        mask_dic = {
+            "size": cv2.countNonZero(mask),
+            "mask": mask,
+            "overlapped": 1.0 - cv2.countNonZero(mask) / cv2.countNonZero(mask_original),
+        }
         return mask_dic
 
     def rotate_contour(self, cnt, angle):
+        """
+        Helper function for rotating contour of object mask
+        :param cnt: contour of object mask
+        :param angle: angle with which to rotate mask
+        :return: rotated contour of object mask
+        """
+
         def cart2pol(x, y):
+            """
+            Helper function for converting cartesian coordinates to polar coordinates
+            :param x: x coordinate of point
+            :param y: y coordinate of point
+            :return: polar coordinates of point
+            """
             theta = np.arctan2(y, x)
             rho = np.hypot(x, y)
             return theta, rho
 
         def pol2cart(theta, rho):
+            """
+            Helper function for converting polar coordinates to cartesian coordinates
+            :param theta: angle of point
+            :param rho: distance of point
+            :return: cartesian coordinates of point
+            """
             x = rho * np.cos(theta)
             y = rho * np.sin(theta)
             return x, y
-        
+
         M = cv2.moments(cnt)
-        cx = int(M['m10']/M['m00'])
-        cy = int(M['m01']/M['m00'])
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
 
         cnt_norm = cnt - [cx, cy]
-    
+
         coordinates = cnt_norm[:, 0, :]
         xs, ys = coordinates[:, 0], coordinates[:, 1]
         thetas, rhos = cart2pol(xs, ys)
-    
+
         thetas = np.rad2deg(thetas)
         thetas = (thetas + angle) % 360
         thetas = np.deg2rad(thetas)
-    
+
         xs, ys = pol2cart(thetas, rhos)
-    
+
         cnt_norm[:, 0, 0] = xs
         cnt_norm[:, 0, 1] = ys
 
@@ -270,8 +322,13 @@ class AugmentationImage:
         cnt_rotated = cnt_rotated.astype(np.int32)
 
         return cnt_rotated
-    
+
     def reduce_brightness(self, img):
+        """
+        Helper function for reducing brightness of image
+        :param img: image to be reduced
+        :return: reduced image
+        """
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(hsv)
         max_brightness = random.randint(8, 30)
@@ -280,19 +337,7 @@ class AugmentationImage:
         v[v > 255] = 255
         v[v < 0] = 0
         final_hsv = cv2.merge((h, s, v))
-        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR) 
-        img = cv2.blur(img, (9,9))
-        
+        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+        img = cv2.blur(img, (9, 9))
+
         return img
-
-
-
-
-
-
-
-
-
-
-
-
