@@ -56,6 +56,6 @@ main modules:
 2. [Image Classification](image_classification/README.md) using the classification approach.
 3. [Image Segmentation](image_segmentation/README.md) using instance segmentation.
 
-Before starting, configure the GPU settings in **image_segmentation/train_net.py** and *
-*image_classification/transfer_learning.py**. It is recommended to define the store and project directory in
+Before starting, configure the GPU settings in **image_segmentation/train_net.py** and
+**image_classification/transfer_learning.py**. It is recommended to define the store and project directory in
 **image_classification/constants.py**.
